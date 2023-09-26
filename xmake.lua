@@ -1,13 +1,15 @@
 add_rules("mode.debug", "mode.release")
 add_requires("eigen 3.4.0","nlohmann_json v3.11.2","tinyobjloader v2.0.0rc10")
+add_requires("glfw 3.3.8")
 set_languages("c++17")
 target("Moer_ScenePreviewer")
     set_kind("binary")
     add_files("src/*.cpp")
     add_files("src/*/*.cpp")
     add_includedirs("src/include/")
+    add_packages("glfw")
     add_packages("eigen","nlohmann_json","tinyobjloader")
-
+   
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
