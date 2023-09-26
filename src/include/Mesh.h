@@ -21,8 +21,8 @@ class Mesh {
   public:
    Mesh();
    Mesh(std::string file_path);
-   int vertices_nr();
-   int faces_nr();
+   size_t vertices_nr();
+   size_t faces_nr();
    Vector3f normal(size_t iface, size_t nth_vertex);
    Vector3f vertex(size_t ivertex);
    Vector3f vertex(size_t iface, size_t nth_vertex);

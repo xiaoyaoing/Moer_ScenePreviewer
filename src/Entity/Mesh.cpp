@@ -33,6 +33,20 @@ Mesh::Mesh(std::string file_path) {
    std::cout << "Load model: " << file_path << " sucessfully." << std::endl;
 }
 
+size_t Mesh::faces_nr() { return faces.size(); }
+
+size_t Mesh::vertices_nr() { return vertices.size(); }
+
+Vector3f Mesh::normal(size_t iface, size_t nth_vertex) {
+   return normals[faces[iface][nth_vertex][2]].normalized();
+}
+
+Vector3f Mesh::vertex(size_t iface, size_t nth_vertex) {
+   return vertices[faces[iface][nth_vertex][0]].normalized();
+}
+
+Vector3f Mesh::vertex(size_t ivertex) { return vertices[ivertex]; }
+
 void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
                          std::vector<Vector3f>& dst) {
    if (components.size() % 3 != 0) {
