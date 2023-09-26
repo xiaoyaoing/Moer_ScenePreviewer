@@ -4,6 +4,7 @@ set_languages("c++17")
 target("Moer_ScenePreviewer")
     set_kind("binary")
     add_files("src/*.cpp")
+    add_files("src/*/*.cpp")
     add_includedirs("src/include/")
     add_packages("eigen","nlohmann_json","tinyobjloader")
 
