@@ -60,6 +60,19 @@ void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
    }
 }
 
+void Mesh::apply(Matrix4f transform) {
+   for (size_t i = 0; i < vertices.size(); i++) {
+      Vector4f v = (transform * vertices[i].homogeneous());
+      if (v.coeff(3) > 1.f) v /= v.coeffRef(3);
+      vertices[i] = v.head<3>();
+   }
+   for (size_t i = 0; i < normals.size(); i++) {
+      Vector4f v = (transform * vertices[i].homogeneous());
+      if (v.coeff(3) > 1.f) v /= v.coeffRef(3);
+      normals[i] = v.head<3>();
+   }
+}
+
 void components_to_vec2f(const std::vector<tinyobj::real_t>& components,
                          std::vector<Vector2f>& dst) {
    if (components.size() % 2 != 0) {
@@ -88,4 +101,123 @@ void load_triangle_faces(const tinyobj::shape_t& shape,
       }
       faces.push_back(vertices);
    }
+}
+
+Quad::Quad() : Mesh() {
+   /*
+   d(-0.5,0,-0.5)-----c(0.5,0,-0.5)
+      |                    |
+      |                    |
+      |                    |
+      |                    |
+   a(-0.5,0,0.5)-----b(0.5,0,0.5)
+   */
+   vertices.emplace_back(-0.5f, 0, 0.5f);  // a
+   vertices.emplace_back(0.5, 0, 0.5);
+   vertices.emplace_back(0.5f, 0, -0.5f);
+   vertices.emplace_back(-0.5f, 0, -0.5f);  // d
+
+   normals.emplace_back(0, 1, 0);
+   // no uv for now
+   Vector3i a(0, 0, 0), b(1, 0, 0), c(2, 0, 0), d(3, 0, 0);
+   faces.reserve(2);  // two faces for a Quad
+   faces[0].push_back(a);
+   faces[0].push_back(b);
+   faces[0].push_back(d);
+
+   faces[1].push_back(b);
+   faces[1].push_back(c);
+   faces[1].push_back(d);
+}
+
+Cube::Cube() : Mesh() {
+   /*
+               h--------g
+              /        /|
+             /        / |
+            e--------f  c
+            |        | /
+            |        |/
+            a--------b
+   (-0,5,0,0.5) (0.5,0,0.5)
+   */
+   // add a~h to vertices
+   vertices.emplace_back(-0.5f, 0, 0.5f);   // a = 0
+   vertices.emplace_back(0.5, 0, 0.5);      // b = 1
+   vertices.emplace_back(0.5f, 0, -0.5f);   // c = 2
+   vertices.emplace_back(-0.5f, 0, -0.5f);  // d = 3
+
+   vertices.emplace_back(-0.5f, 1, 0.5f);   // e = 4
+   vertices.emplace_back(0.5, 1, 0.5);      // f = 5
+   vertices.emplace_back(0.5f, 1, -0.5f);   // g = 6
+   vertices.emplace_back(-0.5f, 1, -0.5f);  // h = 7
+
+   normals.emplace_back(0, 0, 1);   // n = 0
+   normals.emplace_back(0, 0, -1);  // f = 1
+   normals.emplace_back(-1, 0, 0);  // l = 2
+   normals.emplace_back(1, 0, 0);   // r = 3
+   normals.emplace_back(0, 1, 0);   // t = 4
+   normals.emplace_back(0, -1, 0);  // b = 5
+
+   // no nv for now, all uv_index = 0
+   faces.reserve(12);
+   // create near plane
+   // a, e, b
+   faces[0].emplace_back(0, 0, 0);
+   faces[0].emplace_back(4, 0, 0);
+   faces[0].emplace_back(1, 0, 0);
+   // e, f, b
+   faces[1].emplace_back(4, 0, 0);
+   faces[1].emplace_back(5, 0, 0);
+   faces[1].emplace_back(1, 0, 0);
+
+   // create far plane
+   // d, c, h
+   faces[2].emplace_back(3, 0, 1);
+   faces[2].emplace_back(2, 0, 1);
+   faces[2].emplace_back(7, 0, 1);
+   // c, g, h
+   faces[3].emplace_back(2, 0, 1);
+   faces[3].emplace_back(6, 0, 1);
+   faces[3].emplace_back(7, 0, 1);
+
+   // create left plane
+   // a, e, d
+   faces[4].emplace_back(0, 0, 2);
+   faces[4].emplace_back(4, 0, 2);
+   faces[4].emplace_back(3, 0, 2);
+   // e, h, d
+   faces[5].emplace_back(4, 0, 2);
+   faces[5].emplace_back(7, 0, 2);
+   faces[5].emplace_back(3, 0, 2);
+
+   // create right plane
+   // b, f, c
+   faces[6].emplace_back(1, 0, 3);
+   faces[6].emplace_back(5, 0, 3);
+   faces[6].emplace_back(2, 0, 3);
+   // f, g, c
+   faces[7].emplace_back(5, 0, 3);
+   faces[7].emplace_back(6, 0, 3);
+   faces[7].emplace_back(2, 0, 3);
+
+   // create top plane
+   // e, f, g
+   faces[8].emplace_back(4, 0, 4);
+   faces[8].emplace_back(5, 0, 4);
+   faces[8].emplace_back(6, 0, 4);
+   // e, g, h
+   faces[9].emplace_back(4, 0, 4);
+   faces[9].emplace_back(6, 0, 4);
+   faces[9].emplace_back(7, 0, 4);
+
+   // create bottom plane
+   // a, b, c
+   faces[10].emplace_back(0, 0, 5);
+   faces[10].emplace_back(1, 0, 5);
+   faces[10].emplace_back(2, 0, 5);
+   // a, c, d
+   faces[11].emplace_back(0, 0, 5);
+   faces[11].emplace_back(2, 0, 5);
+   faces[11].emplace_back(3, 0, 5);
 }

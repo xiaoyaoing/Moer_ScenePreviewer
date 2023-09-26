@@ -8,11 +8,13 @@
 #include <vector>
 
 using Vector3f = Eigen::Vector3f;
+using Vector4f = Eigen::Vector4f;
 using Vector2f = Eigen::Vector2f;
 using Vector3i = Eigen::Vector3i;
+using Matrix4f = Eigen::Matrix4f;
 
 class Mesh {
-  private:
+  protected:
    std::vector<Vector3f> vertices;
    std::vector<Vector3f> normals;
    std::vector<Vector2f> uvs;
@@ -26,6 +28,15 @@ class Mesh {
    Vector3f normal(size_t iface, size_t nth_vertex);
    Vector3f vertex(size_t ivertex);
    Vector3f vertex(size_t iface, size_t nth_vertex);
+   void apply(Matrix4f transform);
+};
+
+class Quad : Mesh {
+   Quad();
+};
+
+class Cube : Mesh {
+   Cube();
 };
 
 #endif
