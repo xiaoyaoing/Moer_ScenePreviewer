@@ -1,7 +1,10 @@
 #include "Transform.h"
 
 namespace Transform {
-
+AngleValue::AngleValue() {
+   degrees = 0.f;
+   radians = 0.f;
+}
 float AngleValue::getDegrees() const { return degrees; }
 float AngleValue::getRadians() const { return radians; }
 void AngleValue::setDegrees(float deg) {
@@ -27,6 +30,10 @@ float AngleValue::convertDeg2Rad(float deg) {
    return rad;
 }
 
+AngleDegreeValue::AngleDegreeValue(float deg) { setDegrees(deg); }
+
+AngleRadValue::AngleRadValue(float rad) { setRadians(rad); }
+
 Matrix4f getScale(float x, float y, float z) {
    Matrix4f ret = Eigen::Matrix4f::Identity();
    ret(0, 0) = x;
@@ -47,9 +54,9 @@ Matrix4f getRotateEuler(const AngleValue &x, const AngleValue &y,
                         const AngleValue &z, EulerType type) {
    Matrix4f retVal;
    Eigen::Matrix3f block;
-   auto rotX = Eigen::AngleAxisd(x.getRadians(), Eigen::Vector3d::UnitX());
-   auto rotY = Eigen::AngleAxisd(y.getRadians(), Eigen::Vector3d::UnitY());
-   auto rotZ = Eigen::AngleAxisd(z.getRadians(), Eigen::Vector3d::UnitZ());
+   auto rotX = Eigen::AngleAxisf(x.getRadians(), Eigen::Vector3f::UnitX());
+   auto rotY = Eigen::AngleAxisf(y.getRadians(), Eigen::Vector3f::UnitY());
+   auto rotZ = Eigen::AngleAxisf(z.getRadians(), Eigen::Vector3f::UnitZ());
    if (type == EulerType::EULER_XYZ) {
       block = rotZ * rotY * rotX;
    } else if (type == EulerType::EULER_ZYX) {

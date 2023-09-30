@@ -4,8 +4,8 @@
 #include <Eigen/Dense>
 #include <cmath>
 
-namespace Transform {
 using Matrix4f = Eigen::Matrix4f;
+namespace Transform {
 constexpr double PI = 3.141592653589793238463;
 constexpr float PI_F = 3.14159265358979f;
 
