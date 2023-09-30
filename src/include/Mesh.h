@@ -22,7 +22,7 @@ class Mesh {
        faces;  // this Vec3i means vertex/uv/normal index
   public:
    Mesh();
-   Mesh(std::string file_path);
+   Mesh(const std::string& file_path);
    size_t vertices_nr();
    size_t faces_nr();
    Vector3f normal(size_t iface, size_t nth_vertex);
@@ -31,11 +31,13 @@ class Mesh {
    void apply(Matrix4f transform);
 };
 
-class Quad : Mesh {
+class Quad : public Mesh {
+  public:
    Quad();
 };
 
-class Cube : Mesh {
+class Cube : public Mesh {
+  public:
    Cube();
 };
 

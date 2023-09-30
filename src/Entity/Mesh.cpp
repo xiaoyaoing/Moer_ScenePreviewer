@@ -9,7 +9,7 @@ void load_triangle_faces(const tinyobj::shape_t& shape,
 
 Mesh::Mesh() {}
 
-Mesh::Mesh(std::string file_path) {
+Mesh::Mesh(const std::string& file_path) {
    tinyobj::attrib_t attrib;
    std::vector<tinyobj::shape_t> shapes;
    std::vector<tinyobj::material_t> objmaterials;  // not used
