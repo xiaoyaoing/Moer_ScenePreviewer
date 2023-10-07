@@ -21,9 +21,9 @@ PinHoleCamera::PinHoleCamera(const Json& json) {
 
    if (transform_json.contains("up")) {
       auto _up = transform_json.at("up");
-      lookAt = Vector3f(_up[0], _up[1], _up[2]);
+      up = Vector3f(_up[0], _up[1], _up[2]);
    } else {
-      lookAt = Vector3f(0, 0, 1);
+      up = Vector3f(0, 0, 1);
    }
 
    float xFov = 45.f;
@@ -41,12 +41,9 @@ PinHoleCamera::PinHoleCamera(const Json& json) {
 
    float aspectRatio = float(resolution[0]) / resolution[1];
    float distToFilm = 1.0f / tan(xFov * Transform::PI_F / 360);
-   cameraToWorld =
-       Transform::getLookAt(lookFrom, lookAt - lookFrom, up).inverse();
-   Matrix4f filmToSample =
-       Transform::getPerspective(Transform::AngleDegreeValue(xFov), aspectRatio,
-                                 distToFilm, std::numeric_limits<float>::max());
-   sampleToFilm = Transform::getScale(0.5, -0.5, 1.0) *
-                  Transform::getTranslate(1, -1, 0) * filmToSample;
-   sampleToFilm = sampleToFilm.inverse();
+   worldToCamera = Transform::getLookAt(lookFrom, lookAt - lookFrom, up);
+   persective = Transform::getPerspective(
+       Transform::AngleDegreeValue(xFov), aspectRatio, distToFilm,
+       std::numeric_limits<float>::max() / 2.f);
+   viewPort = Transform::getViewPort(resolution);
 }
