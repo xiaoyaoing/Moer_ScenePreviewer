@@ -6,6 +6,7 @@
 
 using Matrix4f = Eigen::Matrix4f;
 using Vector3f = Eigen::Vector3f;
+using Vector2i = Eigen::Vector2i;
 namespace Transform {
 constexpr double PI = 3.141592653589793238463;
 constexpr float PI_F = 3.14159265358979f;
@@ -44,6 +45,7 @@ Matrix4f getRotateEuler(const AngleValue &x, const AngleValue &y,
                         const AngleValue &z, EulerType type);
 Matrix4f getLookAt(const Vector3f& lookFrom,const Vector3f& lookAt_vec, const Vector3f& up);
 Matrix4f getPerspective(const AngleValue& fov, float aspect,float near,float far);
+Matrix4f getViewPort(Vector2i resolution);
 }  // namespace Transform
 
 #endif

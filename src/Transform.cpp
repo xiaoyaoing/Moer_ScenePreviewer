@@ -43,7 +43,7 @@ Matrix4f getScale(float x, float y, float z) {
 }
 
 Matrix4f getTranslate(float x, float y, float z) {
-   Matrix4f ret;
+   Matrix4f ret = Eigen::Matrix4f::Identity();
    ret(0, 3) = x;
    ret(1, 3) = y;
    ret(2, 3) = z;
@@ -52,7 +52,7 @@ Matrix4f getTranslate(float x, float y, float z) {
 
 Matrix4f getRotateEuler(const AngleValue& x, const AngleValue& y,
                         const AngleValue& z, EulerType type) {
-   Matrix4f retVal;
+   Matrix4f retVal = Eigen::Matrix4f::Identity();
    Eigen::Matrix3f block;
    auto rotX = Eigen::AngleAxisf(x.getRadians(), Eigen::Vector3f::UnitX());
    auto rotY = Eigen::AngleAxisf(y.getRadians(), Eigen::Vector3f::UnitY());
@@ -75,22 +75,49 @@ Matrix4f getLookAt(const Vector3f& lookFrom, const Vector3f& veclookAt,
    Matrix4f translateMat =
        getTranslate(-lookFrom[0], -lookFrom[1], -lookFrom[2]);
    Vector3f realLookAt = veclookAt.normalized();
-   Vector3f right = up.cross(realLookAt).normalized();
-   Vector3f realUp = realLookAt.cross(right).normalized();
+   Vector3f right = realLookAt.cross(up).normalized();
+   Vector3f realUp = right.cross(realLookAt).normalized();
    Matrix4f rotMat;
-   rotMat << -right[0], -right[1], -right[2], 0.0f, realUp[0], realUp[1],
-       realUp[2], 0.0f, realLookAt[0], realLookAt[1], realLookAt[2], 0.0f, 0.0f,
-       0.0f, 0.0f, 1.0f;
+   rotMat << right[0], right[1], right[2], 0.0f, realUp[0], realUp[1],
+       realUp[2], 0.0f, -realLookAt[0], -realLookAt[1], -realLookAt[2], 0.0f,
+       0.0f, 0.0f, 0.0f, 1.0f;
    return rotMat * translateMat;
 }
 
-Matrix4f getPerspective(const AngleValue& fov, float aspect, float near,
+Matrix4f getOrthographic(float l, float r, float t, float b, float n, float f) {
+   // represent left,right,top,buttom,near,far
+   Matrix4f trans = Eigen::Matrix4f::Identity();  // translation matrix
+   trans << 1, 0, 0, -(r + l) / 2, 0, 1, 0, -(t + b) / 2, 0, 0, 1, -(n + f) / 2,
+       0, 0, 0, 1;
+
+   Matrix4f scale = Eigen::Matrix4f::Identity();
+   scale << 2 / (r - l), 0, 0, 0, 0, 2 / (t - b), 0, 0, 0, 0, 2 / (n - f), 0, 0,
+       0, 0, 1;
+
+   Matrix4f ortho = scale * trans;
+
+   return ortho;
+}
+
+Matrix4f getPerspective(const AngleValue& xfov, float aspect, float near,
                         float far) {
-   float cotHalfFov = (1 / tan(fov.getRadians() / 2.0));
-   Matrix4f retVal;
-   retVal << cotHalfFov, 0, 0, 0, 0, cotHalfFov * aspect, 0, 0, 0, 0,
-       far / (far - near), -far * near / (far - near), 0, 0, 1, 0;
-   return retVal;
+   float left = -tan(xfov.getRadians() / 2.f) * near;
+   float right = -left;
+   float buttom = left * 1.f / aspect;
+   float top = -buttom;
+   Matrix4f ortho = getOrthographic(left, right, top, buttom, near, far);
+   Matrix4f perspective = Eigen::Matrix4f::Identity();
+   perspective << near, 0, 0, 0, 0, near, 0, 0, 0, 0, near + far, -near * far,
+       0, 0, 1, 0;
+   perspective = ortho * perspective;
+   return perspective;
+}
+
+Matrix4f getViewPort(Vector2i resolution) {
+   Matrix4f viewport;
+   viewport << resolution[0] / 2.f, 0, 0, resolution[0] / 2.f, 0,
+       resolution[1] / 2.f, 0, resolution[1] / 2.f, 0, 0, 1, 0, 0, 0, 0, 1;
+   return viewport;
 }
 
 }  // namespace Transform
