@@ -17,3 +17,7 @@ void RGBColorImage::setPixel(size_t x, size_t y, RGBColor color) {
    }
    data[y * width + x] = color;
 }
+
+uint8_t* RGBColorImage::getData() {
+   return reinterpret_cast<uint8_t*>(data.data());
+}

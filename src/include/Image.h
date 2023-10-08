@@ -21,7 +21,7 @@ class RGBColorImage {
    RGBColorImage(size_t width, size_t height);
    RGBColor getPixel(size_t x, size_t y);
    void setPixel(size_t x, size_t y, RGBColor color);
-
+   uint8_t * getData(); // for glfw
   private:
    std::vector<RGBColor> data;
 };
