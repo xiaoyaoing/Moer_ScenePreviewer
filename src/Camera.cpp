@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-PinHoleCamera::PinHoleCamera() {}
-
 PinHoleCamera::PinHoleCamera(const Json& json) {
    const Json& transform_json = json.at("transform");
    Vector3f lookAt, lookFrom, up;
@@ -46,4 +44,7 @@ PinHoleCamera::PinHoleCamera(const Json& json) {
        Transform::AngleDegreeValue(xFov), aspectRatio, distToFilm,
        std::numeric_limits<float>::max() / 2.f);
    viewPort = Transform::getViewPort(resolution);
+
+   film = std::make_unique<RGBColorImage>(resolution[0], resolution[1]);
+   zBuffer = std::make_unique<ZBuffer>(resolution[0], resolution[1]);
 }
