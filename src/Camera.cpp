@@ -1,7 +1,7 @@
 #include "Camera.h"
 
-PinHoleCamera::PinHoleCamera(const Json& json) {
-   const Json& transform_json = json.at("transform");
+PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
+   const Json& transform_json = cameraJson.at("transform");
    Vector3f lookAt, lookFrom, up;
    if (transform_json.contains("position")) {
       auto position = transform_json.at("position");
@@ -25,13 +25,13 @@ PinHoleCamera::PinHoleCamera(const Json& json) {
    }
 
    float xFov = 45.f;
-   if (json.contains("xfov")) {
-      xFov = json.at("xfov");
+   if (cameraJson.contains("xfov")) {
+      xFov = cameraJson.at("xfov");
    }
 
    Vector2i resolution;
-   if (json.contains("resolution")) {
-      auto _resolution = json.at("resolution");
+   if (cameraJson.contains("resolution")) {
+      auto _resolution = cameraJson.at("resolution");
       resolution = Vector2i(_resolution[0], _resolution[1]);
    } else {
       resolution = Vector2i(512, 512);

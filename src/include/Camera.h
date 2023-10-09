@@ -13,7 +13,7 @@ using Json = nlohmann::json;
 
 class PinHoleCamera {
   public:
-   PinHoleCamera(const Json& json);
+   PinHoleCamera(const Json& cameraJson);
 
   public:
    Matrix4f worldToCamera;
