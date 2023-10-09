@@ -2,11 +2,13 @@
 #define __SCENE_H__
 #include <fstream>
 #include <iostream>
-#include <nlohmann/json.hpp>
 #include <memory>
+#include <nlohmann/json.hpp>
 
 #include "Camera.h"
 #include "Mesh.h"
+#include "Render.h"
+#include "Shader.h"
 #include "Transform.h"
 
 
@@ -18,7 +20,7 @@ class Scene {
    Vector3f light_dir;
    std::unique_ptr<PinHoleCamera> camera;
    std::vector<std::shared_ptr<Mesh>> meshes;
-
+   std::unique_ptr<Shader> shader;
    void render();
 
   private:

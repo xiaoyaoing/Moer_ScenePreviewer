@@ -79,3 +79,15 @@ void Scene::load_camera_from_json(const Json& sceneJson) {
    Json cameraJson = sceneJson.at("camera");
    camera = std::make_unique<PinHoleCamera>(cameraJson);
 }
+
+void Scene::render() {
+   for (auto& mesh : meshes) {
+      for (int i = 0; i < mesh->faces_nr(); i++) {
+         std::vector<Vector4f> screen_coords(3);
+         for (int j = 0; j < 3; j++) {
+            screen_coords[j] = shader->vertex(mesh, i, j);
+         }
+         triangle(screen_coords, *shader, *camera->zBuffer, *camera->film);
+      }
+   }
+}
