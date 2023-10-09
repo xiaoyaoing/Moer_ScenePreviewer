@@ -1,21 +1,29 @@
 #include "Scene.h"
 
-Scene::Scene() {}
+Scene::Scene(std::string& working_dir) {
+   std::string jsonPath = working_dir + "/scene.json";
+   std::ifstream file(jsonPath);
+   Json SceneJson;
+   if (file.is_open()) {
+      file >> SceneJson;
+      file.close();
+   }
+   load_meshes_from_json(SceneJson);
+   load_camera_from_json(SceneJson);
+}
 
-Scene::Scene(std::string& working_dir) {}
-
-void Scene::load_meshes_from_json(const Json& json) {
-   for (auto& entity : json.at("entities")) {
+void Scene::load_meshes_from_json(const Json& SceneJson) {
+   for (auto& entity : SceneJson.at("entities")) {
       load_mesh_from_json(entity);
    }
 }
 
-void Scene::load_mesh_from_json(const Json& json) {
+void Scene::load_mesh_from_json(const Json& entityJson) {
    try {
-      std::string type = json.at("type");
+      std::string type = entityJson.at("type");
       std::shared_ptr<Mesh> mesh = nullptr;
       if (type == "mesh") {
-         std::string file_path = json.at("file");
+         std::string file_path = entityJson.at("file");
          mesh = std::make_shared<Mesh>(file_path);
       } else if (type == "quad") {
          mesh = std::make_shared<Quad>();
@@ -25,8 +33,8 @@ void Scene::load_mesh_from_json(const Json& json) {
          throw std::invalid_argument("Unknown value for key 'type': " + type);
       }
 
-      if (!json.at("transform").empty()) {
-         auto transform = getTransform(json.at("transform"));
+      if (!entityJson.at("transform").empty()) {
+         auto transform = getTransform(entityJson.at("transform"));
          mesh->apply(transform);
       }
       meshes.push_back(mesh);
@@ -65,4 +73,9 @@ Matrix4f Scene::getTransform(const Json& json) {
           << "Missing essential property when loading entity's transform:  "
           << e.what() << std::endl;
    }
+}
+
+void Scene::load_camera_from_json(const Json& sceneJson) {
+   Json cameraJson = sceneJson.at("camera");
+   camera = std::make_unique<PinHoleCamera>(cameraJson);
 }
