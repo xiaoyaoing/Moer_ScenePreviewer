@@ -21,3 +21,6 @@ void RGBColorImage::setPixel(size_t x, size_t y, RGBColor color) {
 uint8_t* RGBColorImage::getData() {
    return reinterpret_cast<uint8_t*>(data.data());
 }
+
+size_t RGBColorImage::getWidth() const { return width; }
+size_t RGBColorImage::getHeight() const { return height; }
