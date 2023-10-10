@@ -14,10 +14,11 @@ using Json = nlohmann::json;
 class PinHoleCamera {
   public:
    PinHoleCamera(const Json& cameraJson);
+   Vector3f lookAt, up, right;
 
   public:
-   Matrix4f worldToCamera;
-   Matrix4f persective, viewPort;
+   Matrix4f view, projection, viewPort;
+   Matrix4f worldToScreen;
    std::unique_ptr<RGBColorImage> film;
    std::unique_ptr<ZBuffer> zBuffer;
 };
