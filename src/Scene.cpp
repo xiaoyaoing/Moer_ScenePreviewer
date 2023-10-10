@@ -85,9 +85,10 @@ void Scene::render() {
       for (int i = 0; i < mesh->faces_nr(); i++) {
          std::vector<Vector4f> screen_coords(3);
          for (int j = 0; j < 3; j++) {
-            screen_coords[j] = shader->vertex(mesh, i, j);
+            screen_coords[j] = shader->vertex(i, j);
          }
-         Render::triangle(screen_coords, *shader, *camera->zBuffer, *camera->film);
+         Render::triangle(screen_coords, *shader, *camera->zBuffer,
+                          *camera->film);
       }
    }
 }

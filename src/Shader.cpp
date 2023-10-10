@@ -56,12 +56,13 @@ bool ShadowMappingShader::fragment(Vector3f barycentric, RGBColor &color) {
    Vector3f half_vector =
        (uniform_M *
         (-(currentLightCamera->lookAt + currentCamera->lookAt).homogeneous()))
+           .head<3>()
            .normalized();
    const float meshSpecular = 60.f;
    float specular =
        std::pow(std::max(0.f, normal.dot(half_vector)), meshSpecular);
    float diffuse = std::max(0.f, normal.dot(light) * -1);
-   
+
    color = RGBColor(255, 255, 255);
    color = color * shadow * (1.2 * diffuse + 0.8 * specular) + 20;
    return false;
