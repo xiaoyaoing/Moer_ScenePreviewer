@@ -18,7 +18,7 @@ class Scene {
   public:
    Scene(std::string& working_dir);
    Vector3f light_dir;
-   std::unique_ptr<PinHoleCamera> camera;
+   std::shared_ptr<PinHoleCamera> camera;
    std::vector<std::shared_ptr<Mesh>> meshes;
    std::unique_ptr<Shader> shader;
    void render();

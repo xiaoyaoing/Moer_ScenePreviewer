@@ -77,7 +77,7 @@ Matrix4f Scene::getTransform(const Json& json) {
 
 void Scene::load_camera_from_json(const Json& sceneJson) {
    Json cameraJson = sceneJson.at("camera");
-   camera = std::make_unique<PinHoleCamera>(cameraJson);
+   camera = std::make_shared<PinHoleCamera>(cameraJson);
 }
 
 void Scene::render() {
@@ -87,7 +87,7 @@ void Scene::render() {
          for (int j = 0; j < 3; j++) {
             screen_coords[j] = shader->vertex(mesh, i, j);
          }
-         triangle(screen_coords, *shader, *camera->zBuffer, *camera->film);
+         Render::triangle(screen_coords, *shader, *camera->zBuffer, *camera->film);
       }
    }
 }
