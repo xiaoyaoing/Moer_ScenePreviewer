@@ -1,5 +1,6 @@
 #include "Render.h"
 
+namespace Render {
 Vector3f barycentric(std::vector<Vector4f>& TriangleVertices,
                      Vector4f queryPoint) {
    Vector3f x{(float)(TriangleVertices[1] - TriangleVertices[0])[0],
@@ -113,3 +114,4 @@ void triangle(std::vector<Vector4f>& pointsWithWeight, Shader& shader,
       }
    }
 }
+};  // namespace Render

@@ -12,7 +12,13 @@ using Vector4f = Eigen::Vector4f;
 using Vector2i = Eigen::Vector2i;
 using Vector2f = Eigen::Vector2f;
 
-Vector3f barycentric(std::vector<Vector4f>& pts, Vector4f p);
+namespace Render {
+
+Vector3f barycentric(std::vector<Vector4f>& TriangleVertices,
+                     Vector4f queryPoint);
 void triangle(std::vector<Vector4f>& pointsWithWeight, Shader& shader,
               ZBuffer& zbuffer, RGBColorImage& image);
+
+};  // namespace Render
+
 #endif
