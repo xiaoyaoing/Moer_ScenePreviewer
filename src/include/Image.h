@@ -1,5 +1,6 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
+#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -14,6 +15,8 @@ class RGBColor {
    RGBColor() = default;
    RGBColor(uint8_t red, uint8_t green, uint8_t blue)
        : r(red), g(green), b(blue) {}
+   RGBColor operator*(float scale);
+   RGBColor operator+(int value);
 };
 
 class RGBColorImage {

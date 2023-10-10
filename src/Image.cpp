@@ -24,3 +24,17 @@ uint8_t* RGBColorImage::getData() {
 
 size_t RGBColorImage::getWidth() const { return width; }
 size_t RGBColorImage::getHeight() const { return height; }
+
+RGBColor RGBColor::operator*(float scale) {
+   int new_red = std::clamp(static_cast<int>(r * scale), 0, 255);
+   int new_green = std::clamp(static_cast<int>(g * scale), 0, 255);
+   int new_blue = std::clamp(static_cast<int>(b * scale), 0, 255);
+   return RGBColor(new_red, new_green, new_blue);
+}
+
+RGBColor RGBColor::operator+(int value) {
+   int new_red = std::clamp(r + value, 0, 255);
+   int new_green = std::clamp(g + value, 0, 255);
+   int new_blue = std::clamp(b + value, 0, 255);
+   return RGBColor(new_red, new_green, new_blue);
+}
