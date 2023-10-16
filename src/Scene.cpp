@@ -10,6 +10,7 @@ Scene::Scene(std::string& working_dir) {
    }
    load_meshes_from_json(SceneJson);
    load_camera_from_json(SceneJson);
+   create_light_camera();
 }
 
 void Scene::load_meshes_from_json(const Json& SceneJson) {
@@ -80,8 +81,24 @@ void Scene::load_camera_from_json(const Json& sceneJson) {
    camera = std::make_shared<PinHoleCamera>(cameraJson);
 }
 
+void Scene::create_light_camera() {
+   Point3f lookAt, lookFrom;
+   Vector3f up;
+   lookFrom = Point3f(0, 20.f, 0);
+   lookAt = Point3f(0, 0, 0);
+   up = Vector3f(0, 0, -1);
+
+   float xFov = 45.f;
+   Vector2i resolution;
+   resolution.x() = camera->film->getWidth();
+   resolution.y() = camera->film->getHeight();
+   lightCamera =
+       std::make_shared<PinHoleCamera>(lookAt, lookFrom, up, xFov, resolution);
+}
+
 void Scene::render() {
    for (auto& mesh : meshes) {
+      Render::setRenderTarget(mesh, camera, lightCamera);
       for (int i = 0; i < mesh->faces_nr(); i++) {
          std::vector<Vector4f> screen_coords(3);
          for (int j = 0; j < 3; j++) {

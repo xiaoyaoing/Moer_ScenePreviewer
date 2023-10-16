@@ -17,7 +17,7 @@ using Json = nlohmann::json;
 class Scene {
   public:
    Scene(std::string& working_dir);
-   Vector3f light_dir;
+   std::shared_ptr<PinHoleCamera> lightCamera;
    std::shared_ptr<PinHoleCamera> camera;
    std::vector<std::shared_ptr<Mesh>> meshes;
    std::unique_ptr<Shader> shader;
@@ -28,6 +28,7 @@ class Scene {
    void load_mesh_from_json(const Json& entityJson);
    Matrix4f getTransform(const Json& json);
    void load_camera_from_json(const Json& sceneJson);
+   void create_light_camera();
 };
 
 #endif
