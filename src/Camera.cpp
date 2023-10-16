@@ -1,5 +1,10 @@
 #include "Camera.h"
 
+PinHoleCamera::PinHoleCamera(Point3f lookFrom, Point3f lookAt, Vector3f up,
+                             float xFov, Vector2i resolution) {
+   setActualValue(lookFrom, lookAt, up, xFov, resolution);
+}
+
 PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
    const Json& transform_json = cameraJson.at("transform");
    Vector3f lookAt, lookFrom, up;
@@ -37,6 +42,12 @@ PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
       resolution = Vector2i(512, 512);
    }
 
+   setActualValue(lookFrom, lookAt, up, xFov, resolution);
+}
+
+void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
+                                   Vector3f up, float xFov,
+                                   Vector2i resolution) {
    float aspectRatio = float(resolution[0]) / resolution[1];
    float distToFilm = 1.0f / tan(xFov * Transform::PI_F / 360);
    view = Transform::getLookAt(lookFrom, lookAt - lookFrom, up);
