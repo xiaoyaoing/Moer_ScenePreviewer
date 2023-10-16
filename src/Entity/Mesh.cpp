@@ -24,9 +24,21 @@ Mesh::Mesh(const std::string& file_path) {
    if (!success) {
       exit(1);
    }
+#ifdef DEBUG
+   printf(" Load mesh obj successfully.\n");
+#endif
    components_to_vec3f(attrib.vertices, this->vertices);
+#ifdef DEBUG
+   printf(" Load vertices successfully.\n");
+#endif
    components_to_vec3f(attrib.normals, this->normals);
+#ifdef DEBUG
+   printf(" Load normals successfully.\n");
+#endif
    components_to_vec2f(attrib.texcoords, this->uvs);
+#ifdef DEBUG
+   printf(" Load uvs successfully.\n");
+#endif
    for (auto shape = shapes.begin(); shape != shapes.end(); shape++) {
       load_triangle_faces(*shape, this->faces);
    }
@@ -91,7 +103,8 @@ void load_triangle_faces(const tinyobj::shape_t& shape,
    if (indices.size() % 3 != 0) {
       throw "Load Error";
    }
-   for (size_t i = 0; i < indices.size(); i++) {
+   size_t indices_nr = indices.size() / 3;
+   for (size_t i = 0; i < indices_nr; i++) {
       std::vector<Vector3i> vertices;
       vertices.reserve(3);
       for (size_t j = 0; j < 3; j++) {
