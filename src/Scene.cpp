@@ -1,7 +1,8 @@
 #include "Scene.h"
 
 Scene::Scene(std::string& working_dir) {
-   std::string jsonPath = working_dir + "/scene.json";
+   workingDir = working_dir;
+   std::string jsonPath = workingDir + "scene.json";
    std::ifstream file(jsonPath);
    Json SceneJson;
    if (file.is_open()) {
@@ -25,10 +26,19 @@ void Scene::load_mesh_from_json(const Json& entityJson) {
       std::shared_ptr<Mesh> mesh = nullptr;
       if (type == "mesh") {
          std::string file_path = entityJson.at("file");
-         mesh = std::make_shared<Mesh>(file_path);
+#ifdef DEBUG
+         std::cout << "Load mesh at " << file_path << std::endl;
+#endif
+         mesh = std::make_shared<Mesh>(workingDir + file_path);
       } else if (type == "quad") {
+#ifdef DEBUG
+         std::cout << "Load quad." << std::endl;
+#endif
          mesh = std::make_shared<Quad>();
       } else if (type == "cube") {
+#ifdef DEBUG
+         std::cout << "Load cube." << std::endl;
+#endif
          mesh = std::make_shared<Cube>();
       } else {
          throw std::invalid_argument("Unknown value for key 'type': " + type);
@@ -49,24 +59,39 @@ void Scene::load_mesh_from_json(const Json& entityJson) {
    }
 }
 
-Matrix4f Scene::getTransform(const Json& json) {
+Matrix4f Scene::getTransform(const Json& transformJson) {
+#ifdef DEBUG
+   std::cout << "Getting Transform for this entity..." << std::endl;
+#endif
    Matrix4f ret = Matrix4f::Identity();
    try {
-      if (json.contains("translate")) {
-         auto translate = json.at("translate");
+      if (transformJson.contains("translate")) {
+         auto translate = transformJson.at("translate");
          ret *=
              Transform::getTranslate(translate[0], translate[1], translate[2]);
+#ifdef DEBUG
+         std::cout << "Translate: " << translate[0] << ' ' << translate[1]
+                   << ' ' << translate[2] << std::endl;
+#endif
       }
-      if (json.contains("scale")) {
-         auto scale = json.at("scale");
+      if (transformJson.contains("scale")) {
+         auto scale = transformJson.at("scale");
          ret *= Transform::getScale(scale[0], scale[1], scale[2]);
+#ifdef DEBUG
+         std::cout << "Scale: " << scale[0] << ' ' << scale[1] << ' '
+                   << scale[2] << std::endl;
+#endif
       }
-      if (json.contains("rotation")) {
-         auto rotation = json.at("rotation");
+      if (transformJson.contains("rotation")) {
+         auto rotation = transformJson.at("rotation");
          float x = rotation[0], y = rotation[1], z = rotation[2];
          ret *= Transform::getRotateEuler(
              Transform::AngleDegreeValue(x), Transform::AngleDegreeValue(y),
              Transform::AngleDegreeValue(z), Transform::EulerType::EULER_YZX);
+#ifdef DEBUG
+         std::cout << "Roatation: " << rotation[0] << ' ' << rotation[1] << ' '
+                   << rotation[2] << std::endl;
+#endif
       }
       return ret;
    } catch (const std::out_of_range& e) {
@@ -77,11 +102,20 @@ Matrix4f Scene::getTransform(const Json& json) {
 }
 
 void Scene::load_camera_from_json(const Json& sceneJson) {
+#ifdef DEBUG
+   std::cout << "Loading Camera..." << std::endl;
+#endif
    Json cameraJson = sceneJson.at("camera");
    camera = std::make_shared<PinHoleCamera>(cameraJson);
+#ifdef DEBUG
+   std::cout << "Load camera successfully." << std::endl;
+#endif
 }
 
 void Scene::create_light_camera() {
+#ifdef DEBUG
+   std::cout << "Creating lightCamera..." << std::endl;
+#endif
    Point3f lookAt, lookFrom;
    Vector3f up;
    lookFrom = Point3f(0, 20.f, 0);
@@ -94,6 +128,9 @@ void Scene::create_light_camera() {
    resolution.y() = camera->film->getHeight();
    lightCamera =
        std::make_shared<PinHoleCamera>(lookAt, lookFrom, up, xFov, resolution);
+#ifdef DEBUG
+   std::cout << "Create lightCamera successfully." << std::endl;
+#endif
 }
 
 void Scene::render() {

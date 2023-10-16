@@ -29,6 +29,7 @@ class Scene {
    Matrix4f getTransform(const Json& json);
    void load_camera_from_json(const Json& sceneJson);
    void create_light_camera();
+   std::string workingDir;
 };
 
 #endif
