@@ -1,10 +1,12 @@
 #ifndef __CAMERA_H__
 #define __CAMERA_H__
+#include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "Image.h"
 #include "Transform.h"
 #include "ZBuffer.h"
+
 
 using Vector3f = Eigen::Vector3f;
 using Vector4f = Eigen::Vector4f;

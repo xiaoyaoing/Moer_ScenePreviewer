@@ -30,8 +30,8 @@ PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
    }
 
    float xFov = 45.f;
-   if (cameraJson.contains("xfov")) {
-      xFov = cameraJson.at("xfov");
+   if (cameraJson.contains("fov")) {
+      xFov = cameraJson.at("fov");
    }
 
    Vector2i resolution;
@@ -42,6 +42,24 @@ PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
       resolution = Vector2i(512, 512);
    }
 
+#ifdef DEBUG
+   std::cout << " Camera Info: " << std::endl;
+#endif
+#ifdef DEBUG
+   std::cout << "    lookFrom: " << lookFrom.transpose() << std::endl;
+#endif
+#ifdef DEBUG
+   std::cout << "    lookAt: " << lookAt.transpose() << std::endl;
+#endif
+#ifdef DEBUG
+   std::cout << "    up: " << up.transpose() << std::endl;
+#endif
+#ifdef DEBUG
+   std::cout << "    xfov: " << xFov << std::endl;
+#endif
+#ifdef DEBUG
+   std::cout << "resolution: " << resolution.transpose() << std::endl;
+#endif
    setActualValue(lookFrom, lookAt, up, xFov, resolution);
 }
 
