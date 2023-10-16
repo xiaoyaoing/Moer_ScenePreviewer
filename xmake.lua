@@ -9,6 +9,9 @@ target("Moer_ScenePreviewer")
     add_includedirs("src/include/")
     add_packages("glfw")
     add_packages("eigen","nlohmann_json","tinyobjloader")
+    if is_mode("debug") then
+        add_defines("DEBUG")
+    end
    
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
