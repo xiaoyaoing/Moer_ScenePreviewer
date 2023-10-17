@@ -12,6 +12,9 @@ Scene::Scene(std::string& working_dir) {
    load_meshes_from_json(SceneJson);
    load_camera_from_json(SceneJson);
    create_light_camera();
+   Render::currentCamera = camera;
+   Render::currentLightCamera = lightCamera;
+   shader = std::make_unique<ShadowMappingShader>();
 }
 
 void Scene::load_meshes_from_json(const Json& SceneJson) {
