@@ -67,8 +67,8 @@ void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
    size_t component_nr = components.size() / 3;
    dst.reserve(component_nr);
    for (size_t i = 0; i < component_nr; i++) {
-      dst[i] = Vector3f(components[i * 3], components[i * 3 + 1],
-                        components[i * 3 + 2]);
+      dst.push_back(Vector3f(components[i * 3], components[i * 3 + 1],
+                             components[i * 3 + 2]));
    }
 }
 
@@ -93,7 +93,7 @@ void components_to_vec2f(const std::vector<tinyobj::real_t>& components,
    size_t component_nr = components.size() / 2;
    dst.reserve(component_nr);
    for (size_t i = 0; i < component_nr; i++) {
-      dst[i] = Vector2f(components[i * 2], components[i * 2 + 1]);
+      dst.push_back(Vector2f(components[i * 2], components[i * 2 + 1]));
    }
 }
 
@@ -108,9 +108,9 @@ void load_triangle_faces(const tinyobj::shape_t& shape,
       std::vector<Vector3i> vertices;
       vertices.reserve(3);
       for (size_t j = 0; j < 3; j++) {
-         vertices[j] = Vector3i(indices[3 * i + j].vertex_index,
-                                indices[3 * i + j].texcoord_index,
-                                indices[3 * i + j].normal_index);
+         vertices.push_back(Vector3i(indices[3 * i + j].vertex_index,
+                                     indices[3 * i + j].texcoord_index,
+                                     indices[3 * i + j].normal_index));
       }
       faces.push_back(vertices);
    }
@@ -133,7 +133,7 @@ Quad::Quad() : Mesh() {
    normals.emplace_back(0, 1, 0);
    // no uv for now
    Vector3i a(0, 0, 0), b(1, 0, 0), c(2, 0, 0), d(3, 0, 0);
-   faces.reserve(2);  // two faces for a Quad
+   faces.resize(2);  // two faces for a Quad
    faces[0].push_back(a);
    faces[0].push_back(b);
    faces[0].push_back(d);
@@ -173,7 +173,7 @@ Cube::Cube() : Mesh() {
    normals.emplace_back(0, -1, 0);  // b = 5
 
    // no nv for now, all uv_index = 0
-   faces.reserve(12);
+   faces.resize(12);
    // create near plane
    // a, e, b
    faces[0].emplace_back(0, 0, 0);

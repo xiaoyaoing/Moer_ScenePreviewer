@@ -2,7 +2,7 @@
 
 RGBColorImage::RGBColorImage(size_t _width, size_t _height)
     : width(_width), height(_height) {
-   data.reserve(_width * _height);
+   data.resize(_width * _height);
 }
 
 RGBColor RGBColorImage::getPixel(size_t x, size_t y) {
