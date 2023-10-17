@@ -2,7 +2,7 @@
 
 ZBuffer::ZBuffer(size_t _width, size_t _height)
     : width(_width), height(_height) {
-   data.reserve(_width * _height);
+   data.resize(_width * _height, std::numeric_limits<float>::lowest());
 }
 
 float ZBuffer::getPixel(size_t x, size_t y) {
