@@ -16,7 +16,7 @@ bool ZBuffer::setPixel(float x, float y, float depth) {
       throw std::out_of_range("Out of Image's range");
    }
    size_t index = static_cast<size_t>(y * width + x);
-   if (depth < data[index]) {
+   if (depth > data[index]) {
       data[index] = depth;
       return true;
    }
