@@ -17,8 +17,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 int main() {
    std::string workingDir = std::string(
-       "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\scenes\\teapot\\");
+       "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\scenes\\testball\\");
    Scene scene(workingDir);
+   scene.render();
    // 创建 GLFW 窗口
    if (!glfwInit()) {
       std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -36,7 +37,6 @@ int main() {
 
    glfwMakeContextCurrent(window);
    gladLoadGL();
-   RGBColorImage image(windowWidth, windowHeight);
 
    glfwSetKeyCallback(window, key_callback);
    while (!glfwWindowShouldClose(window)) {
@@ -44,7 +44,7 @@ int main() {
       glClear(GL_COLOR_BUFFER_BIT);
 
       glRasterPos2i(-1, -1);
-      glDrawPixels(windowWidth, windowHeight, GL_RGB, GL_UNSIGNED_BYTE, image.getData());
+      glDrawPixels(windowWidth, windowHeight, GL_RGB, GL_UNSIGNED_BYTE, scene.camera->film->getData());
 
       glfwSwapBuffers(window);
 

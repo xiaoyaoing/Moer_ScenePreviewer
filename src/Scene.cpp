@@ -62,11 +62,11 @@ void Scene::load_mesh_from_json(const Json& entityJson) {
    }
 }
 
-Matrix4f Scene::getTransform(const Json& transformJson) {
+Matrix4d Scene::getTransform(const Json& transformJson) {
 #ifdef DEBUG
    std::cout << "Getting Transform for this entity..." << std::endl;
 #endif
-   Matrix4f ret = Matrix4f::Identity();
+   Matrix4d ret = Matrix4d::Identity();
    try {
       if (transformJson.contains("translate")) {
          auto translate = transformJson.at("translate");
@@ -87,7 +87,7 @@ Matrix4f Scene::getTransform(const Json& transformJson) {
       }
       if (transformJson.contains("rotation")) {
          auto rotation = transformJson.at("rotation");
-         float x = rotation[0], y = rotation[1], z = rotation[2];
+         double x = rotation[0], y = rotation[1], z = rotation[2];
          ret *= Transform::getRotateEuler(
              Transform::AngleDegreeValue(x), Transform::AngleDegreeValue(y),
              Transform::AngleDegreeValue(z), Transform::EulerType::EULER_YZX);
@@ -120,12 +120,12 @@ void Scene::create_light_camera() {
    std::cout << "Creating lightCamera..." << std::endl;
 #endif
    Point3f lookAt, lookFrom;
-   Vector3f up;
+   Vector3d up;
    lookFrom = Point3f(0, 20.f, 0);
    lookAt = Point3f(0, 0, 0);
-   up = Vector3f(0, 0, -1);
+   up = Vector3d(0, 0, -1);
 
-   float xFov = 45.f;
+   double xFov = 45.f;
    Vector2i resolution;
    resolution.x() = camera->film->getWidth();
    resolution.y() = camera->film->getHeight();
@@ -140,7 +140,7 @@ void Scene::render() {
    for (auto& mesh : meshes) {
       Render::setRenderTarget(mesh, camera, lightCamera);
       for (int i = 0; i < mesh->faces_nr(); i++) {
-         std::vector<Vector4f> screen_coords(3);
+         std::vector<Vector4d> screen_coords(3);
          for (int j = 0; j < 3; j++) {
             screen_coords[j] = shader->vertex(i, j);
          }

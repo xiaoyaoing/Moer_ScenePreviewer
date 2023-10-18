@@ -26,7 +26,7 @@ class Scene {
   private:
    void load_meshes_from_json(const Json& sceneJson);
    void load_mesh_from_json(const Json& entityJson);
-   Matrix4f getTransform(const Json& json);
+   Matrix4d getTransform(const Json& json);
    void load_camera_from_json(const Json& sceneJson);
    void create_light_camera();
    std::string workingDir;

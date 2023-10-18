@@ -3,49 +3,50 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <iostream>
 
-using Matrix4f = Eigen::Matrix4f;
-using Vector3f = Eigen::Vector3f;
+using Matrix4d = Eigen::Matrix4d;
+using Vector3d = Eigen::Vector3d;
 using Vector2i = Eigen::Vector2i;
 namespace Transform {
 constexpr double PI = 3.141592653589793238463;
-constexpr float PI_F = 3.14159265358979f;
+constexpr double PI_F = 3.14159265358979f;
 
 enum class EulerType { EULER_XYZ, EULER_ZYX, EULER_YZX };
 
 class AngleValue {
   protected:
-   float degrees;
-   float radians;
+   double degrees;
+   double radians;
    AngleValue();  // any initialization should call AngleDegreeValue or
                   // AngleRadValue
 
   public:
-   float getDegrees() const;
-   float getRadians() const;
-   void setDegrees(float deg);
-   void setRadians(float rad);
-   static float convertDeg2Rad(float deg);
-   static float convertRad2Deg(float rad);
+   double getDegrees() const;
+   double getRadians() const;
+   void setDegrees(double deg);
+   void setRadians(double rad);
+   static double convertDeg2Rad(double deg);
+   static double convertRad2Deg(double rad);
 };
 
 class AngleDegreeValue : public AngleValue {
   public:
-   AngleDegreeValue(float deg);
+   AngleDegreeValue(double deg);
 };
 
 class AngleRadValue : public AngleValue {
   public:
-   AngleRadValue(float rad);
+   AngleRadValue(double rad);
 };
 
-Matrix4f getScale(float x, float y, float z);
-Matrix4f getTranslate(float x, float y, float z);
-Matrix4f getRotateEuler(const AngleValue &x, const AngleValue &y,
+Matrix4d getScale(double x, double y, double z);
+Matrix4d getTranslate(double x, double y, double z);
+Matrix4d getRotateEuler(const AngleValue &x, const AngleValue &y,
                         const AngleValue &z, EulerType type);
-Matrix4f getLookAt(const Vector3f& lookFrom,const Vector3f& lookAt_vec, const Vector3f& up);
-Matrix4f getPerspective(const AngleValue& fov, float aspect,float near,float far);
-Matrix4f getViewPort(Vector2i resolution);
+Matrix4d getLookAt(const Vector3d& lookFrom,const Vector3d& lookAt_vec, const Vector3d& up);
+Matrix4d getPerspective(const AngleValue& fov, double aspect,double near,double far);
+Matrix4d getViewPort(Vector2i resolution);
 }  // namespace Transform
 
 #endif

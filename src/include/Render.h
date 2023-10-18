@@ -6,17 +6,17 @@
 #include "Shader.h"
 #include "ZBuffer.h"
 
-using Matrix4f = Eigen::Matrix4f;
-using Vector3f = Eigen::Vector3f;
-using Vector4f = Eigen::Vector4f;
+using Matrix4d = Eigen::Matrix4d;
+using Vector3d = Eigen::Vector3d;
+using Vector4d = Eigen::Vector4d;
 using Vector2i = Eigen::Vector2i;
-using Vector2f = Eigen::Vector2f;
+using Vector2d = Eigen::Vector2d;
 
 namespace Render {
 
-Vector3f barycentric(std::vector<Vector4f>& TriangleVertices,
-                     Vector4f queryPoint);
-void triangle(std::vector<Vector4f>& pointsWithWeight, Shader& shader,
+Vector3d barycentric(std::vector<Vector4d>& TriangleVertices,
+                     Vector4d queryPoint);
+void triangle(std::vector<Vector4d>& pointsWithWeight, Shader& shader,
               ZBuffer& zbuffer, RGBColorImage& image);
 
 };  // namespace Render

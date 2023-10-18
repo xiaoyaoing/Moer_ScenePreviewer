@@ -3,43 +3,44 @@
 #include <Eigen/Dense>
 
 #include "RenderTarget.h"
-using Vector4f = Eigen::Vector4f;
-using Vector3f = Eigen::Vector3f;
-using Matrix3f = Eigen::Matrix3f;
-using Matrix4f = Eigen::Matrix4f;
+using Vector4d = Eigen::Vector4d;
+using Vector3d = Eigen::Vector3d;
+using Matrix3d = Eigen::Matrix3d;
+using Matrix4d = Eigen::Matrix4d;
 
 class Shader {
   public:
-   virtual Vector4f vertex(int iface, int nthvert) = 0;
-   virtual bool fragment(Vector3f barycentric, RGBColor& color) = 0;
+   virtual Vector4d vertex(int iface, int nthvert) = 0;
+   virtual bool fragment(Vector3d barycentric, RGBColor& color) = 0;
 };
 
 class ShadowShader : public Shader {
   private:
-   Matrix3f varying_tri;
+   Matrix3d varying_tri;
 
   public:
    ShadowShader() = default;
-   Vector4f vertex(int iface, int nthvert) override final;
-   bool fragment(Vector3f barycentric, RGBColor& color) override final;
+   Vector4d vertex(int iface, int nthvert) override final;
+   bool fragment(Vector3d barycentric, RGBColor& color) override final;
 };
 
 class ShadowMappingShader : public Shader {
   private:
-   Matrix3f varying_tri;     // triangle coordinates before Viewport transform,
+   Matrix3d varying_tri;     // triangle coordinates before Viewport transform,
                              // written by VS, read by FS
-   Vector3f varying_normal;  // the normal vector of this triangle,
+   Matrix3d varying_normal;  // the normal vector of this triangle,
                              // written by VS, read by FS
+   Vector3d varying_intensity;
 
-   Matrix4f uniform_M;        //  Projection*View
-   Matrix4f uniform_MIT;      // (Projection*View).invert_transpose()
-   Matrix4f uniform_Mshadow;  // transform framebuffer screen coordinates to
+   Matrix4d uniform_M;        //  Projection*View
+   Matrix4d uniform_MIT;      // (Projection*View).invert_transpose()
+   Matrix4d uniform_Mshadow;  // transform framebuffer screen coordinates to
                               // shadowbuffer screen coordinates
 
   public:
    ShadowMappingShader();
-   Vector4f vertex(int iface, int nthvert) override final;
-   bool fragment(Vector3f barycentric, RGBColor& color) override final;
+   Vector4d vertex(int iface, int nthvert) override final;
+   bool fragment(Vector3d barycentric, RGBColor& color) override final;
 };
 
 #endif

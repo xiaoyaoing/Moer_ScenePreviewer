@@ -8,11 +8,11 @@ class ZBuffer {
   public:
    size_t width, height;
    ZBuffer(size_t width, size_t height);
-   float getPixel(size_t x, size_t y);
-   bool setPixel(float x, float y, float depth);
+   double getPixel(size_t x, size_t y);
+   bool setPixel(double x, double y, double depth);
 
   private:
-   std::vector<float> data;
+   std::vector<double> data;
 };
 
 
