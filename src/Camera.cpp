@@ -69,16 +69,18 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
    float aspectRatio = float(resolution[0]) / resolution[1];
    float distToFilm = 1.0f / tan(xFov * Transform::PI_F / 360);
    view = Transform::getLookAt(lookFrom, lookAt - lookFrom, up);
-   projection = Transform::getPerspective(
-       Transform::AngleDegreeValue(xFov), aspectRatio, distToFilm,
-       std::numeric_limits<float>::max() / 2.f);
+
+   float nearPlane = -distToFilm;
+   float farPlane = -100.f;
+   projection = Transform::getPerspective(Transform::AngleDegreeValue(xFov),
+                                          aspectRatio, nearPlane, farPlane);
    viewPort = Transform::getViewPort(resolution);
    worldToScreen = viewPort * projection * view;
 
    film = std::make_unique<RGBColorImage>(resolution[0], resolution[1]);
    zBuffer = std::make_unique<ZBuffer>(resolution[0], resolution[1]);
 
-   right = view.row(0).head<3>();
-   up = view.row(1).head(3);
-   lookAt = -view.row(2).head<3>();
+   this->right = view.row(0).head<3>();
+   this->up = view.row(1).head(3);
+   this->lookAt = -view.row(2).head<3>();
 }
