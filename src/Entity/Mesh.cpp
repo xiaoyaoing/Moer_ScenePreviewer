@@ -54,7 +54,7 @@ Vector3f Mesh::normal(size_t iface, size_t nth_vertex) {
 }
 
 Vector3f Mesh::vertex(size_t iface, size_t nth_vertex) {
-   return vertices[faces[iface][nth_vertex][0]].normalized();
+   return vertices[faces[iface][nth_vertex][0]];
 }
 
 Vector3f Mesh::vertex(size_t ivertex) { return vertices[ivertex]; }
@@ -75,13 +75,14 @@ void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
 void Mesh::apply(Matrix4f transform) {
    for (size_t i = 0; i < vertices.size(); i++) {
       Vector4f v = (transform * vertices[i].homogeneous());
-      if (v.coeff(3) > 1.f) v /= v.coeffRef(3);
+      if (v.w() != 0) v /= v.w();
       vertices[i] = v.head<3>();
    }
    for (size_t i = 0; i < normals.size(); i++) {
-      Vector4f v = (transform * vertices[i].homogeneous());
-      if (v.coeff(3) > 1.f) v /= v.coeffRef(3);
-      normals[i] = v.head<3>();
+      Vector4f v =
+          (transform.inverse().transpose() * normals[i].homogeneous());
+      if (v.w() != 0) v /= v.w();
+      normals[i] = v.head<3>().normalized();
    }
 }
 
@@ -125,12 +126,12 @@ Quad::Quad() : Mesh() {
       |                    |
    a(-0.5,0,0.5)-----b(0.5,0,0.5)
    */
-   vertices.emplace_back(-0.5f, 0, 0.5f);  // a
-   vertices.emplace_back(0.5, 0, 0.5);
-   vertices.emplace_back(0.5f, 0, -0.5f);
-   vertices.emplace_back(-0.5f, 0, -0.5f);  // d
+   vertices.push_back(Vector3f(-0.5f, 0, 0.5f));  // a
+   vertices.push_back(Vector3f(0.5, 0, 0.5));
+   vertices.push_back(Vector3f(0.5f, 0, -0.5f));
+   vertices.push_back(Vector3f(-0.5f, 0, -0.5f));  // d
 
-   normals.emplace_back(0, 1, 0);
+   normals.push_back(Vector3f(0, 1, 0));
    // no uv for now
    Vector3i a(0, 0, 0), b(1, 0, 0), c(2, 0, 0), d(3, 0, 0);
    faces.resize(2);  // two faces for a Quad
