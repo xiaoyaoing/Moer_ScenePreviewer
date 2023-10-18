@@ -130,7 +130,7 @@ void Scene::create_light_camera() {
    resolution.x() = camera->film->getWidth();
    resolution.y() = camera->film->getHeight();
    lightCamera =
-       std::make_shared<PinHoleCamera>(lookAt, lookFrom, up, xFov, resolution);
+       std::make_shared<PinHoleCamera>(lookFrom, lookAt, up, xFov, resolution);
 #ifdef DEBUG
    std::cout << "Create lightCamera successfully." << std::endl;
 #endif
