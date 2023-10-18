@@ -3,12 +3,12 @@
 namespace Render {
 Vector3f barycentric(std::vector<Vector4f>& TriangleVertices,
                      Vector4f queryPoint) {
-   Vector3f x{(float)(TriangleVertices[1] - TriangleVertices[0])[0],
-              (float)(TriangleVertices[2] - TriangleVertices[0])[0],
-              (float)(TriangleVertices[0] - queryPoint)[0]};
-   Vector3f y{(float)(TriangleVertices[1] - TriangleVertices[0])[1],
-              (float)(TriangleVertices[2] - TriangleVertices[0])[1],
-              (float)(TriangleVertices[0] - queryPoint)[1]};
+   Vector3f x{(float)(TriangleVertices[1] - TriangleVertices[0]).x(),
+              (float)(TriangleVertices[2] - TriangleVertices[0]).x(),
+              (float)(TriangleVertices[0] - queryPoint).x()};
+   Vector3f y{(float)(TriangleVertices[1] - TriangleVertices[0]).y(),
+              (float)(TriangleVertices[2] - TriangleVertices[0]).y(),
+              (float)(TriangleVertices[0] - queryPoint).y()};
    Vector3f temp = x.cross(y);   // result = k[u, v, 1];
    if (std::abs(temp[2]) < 1) {  // which means temp.z is zero
       // in this case the triangle is degenerate to a line
@@ -66,15 +66,10 @@ float interpolateZValue(const std::vector<Vector4f>& points,
 }
 
 void rasterizePixel(const Vector2i& pointInBBox,
-                    const std::vector<Vector4f>& pointsWithWeight,
+                    const std::vector<Vector4f>& points,
                     const Vector3f& barycentricClip, ZBuffer& zbuffer,
                     Shader& shader, RGBColorImage& image) {
-   if (barycentricClip.x() < 0 || barycentricClip.y() < 0 ||
-       barycentricClip.z() < 0) {
-      return;
-   }
-
-   float pointInBBox_z = interpolateZValue(pointsWithWeight, barycentricClip);
+   float pointInBBox_z = interpolateZValue(points, barycentricClip);
 
    if (zbuffer.setPixel(pointInBBox.x(), pointInBBox.y(), pointInBBox_z)) {
       RGBColor color;
@@ -100,16 +95,23 @@ void triangle(std::vector<Vector4f>& pointsWithWeight, Shader& shader,
       updateBoundingBox(points[i], BBoxMin, BBoxMax, clamp);
    }
 
-   Vector2i pointInBBox;
-   for (pointInBBox.x() = BBoxMin[0]; pointInBBox.x() <= BBoxMax[0];
-        pointInBBox.x()++) {
-      for (pointInBBox.y() = BBoxMin[1]; pointInBBox.y() <= BBoxMax[1];
-           pointInBBox.y()++) {
-         Vector4f queryPoint(pointInBBox[0], pointInBBox[1], 1, 1);
+   Vector2i samplePoint;
+   Vector2i sample_x_range(std::floor(BBoxMin.x()), std::ceil(BBoxMax.x()));
+   Vector2i sample_y_range(std::floor(BBoxMin.y()), std::ceil(BBoxMax.y()));
+   for (samplePoint.x() = sample_x_range[0];
+        samplePoint.x() < sample_x_range[1]; samplePoint.x()++) {
+      for (samplePoint.y() = sample_y_range[0];
+           samplePoint.y() < sample_y_range[1]; samplePoint.y()++) {
+         Vector4f queryPoint(samplePoint.x(), samplePoint.y(), 1,
+                             1);
          Vector3f barycentricScreen = barycentric(points, queryPoint);
          Vector3f barycentricClip =
              calculateBarycentricClip(barycentricScreen, pointsWithWeight);
-         rasterizePixel(pointInBBox, pointsWithWeight, barycentricClip, zbuffer,
+         if (barycentricClip.x() < 0 || barycentricClip.y() < 0 ||
+             barycentricClip.z() < 0) {
+            continue;
+         }
+         rasterizePixel(samplePoint, points, barycentricClip, zbuffer,
                         shader, image);
       }
    }
