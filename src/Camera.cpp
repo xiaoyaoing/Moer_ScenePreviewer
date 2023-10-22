@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-PinHoleCamera::PinHoleCamera(Point3f lookFrom, Point3f lookAt, Vector3d up,
+PinHoleCamera::PinHoleCamera(Point3d lookFrom, Point3d lookAt, Vector3d up,
                              double xFov, Vector2i resolution) {
    setActualValue(lookFrom, lookAt, up, xFov, resolution);
 }
@@ -63,7 +63,7 @@ PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
    setActualValue(lookFrom, lookAt, up, xFov, resolution);
 }
 
-void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
+void PinHoleCamera::setActualValue(Point3d lookFrom, Point3d lookAt,
                                    Vector3d up, double xFov,
                                    Vector2i resolution) {
    double aspectRatio = double(resolution[0]) / resolution[1];
@@ -83,4 +83,6 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
    this->right = view.row(0).head<3>();
    this->up = view.row(1).head(3);
    this->lookAt = -view.row(2).head<3>();
+   this->pointLookAt = lookAt;
+   this->cameraPosition = lookFrom;
 }
