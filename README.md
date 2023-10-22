@@ -16,7 +16,7 @@ $ xmake r Moer_ScenePreviewer "Scene Folder Path"
 ```
 For example:
 ```
-$ xmake r Moer_ScenePreviewer ".\\scenes\\teapot\\"
+$ xmake r Moer_ScenePreviewer "..\\..\\..\\..\\scenes\\teapot\\"
 ```
 
 # TODO List
