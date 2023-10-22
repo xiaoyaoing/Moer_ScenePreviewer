@@ -127,11 +127,11 @@ void Scene::create_light_camera() {
 #ifdef DEBUG
    std::cout << "Creating lightCamera..." << std::endl;
 #endif
-   Point3f lookAt, lookFrom;
+   Point3d lookAt, lookFrom;
    Vector3d up;
-   lookFrom = Point3f(0, 20.f, 0);
-   lookAt = Point3f(0, 0, 0);
-   up = Vector3d(0, 0, -1);
+   lookFrom = camera->cameraPosition;
+   lookAt = camera->pointLookAt;
+   up = camera->up;
 
    double xFov = 45.f;
    Vector2i resolution;
