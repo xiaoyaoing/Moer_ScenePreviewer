@@ -15,12 +15,16 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action,
       glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-int main() {
-   std::string workingDir = std::string(
-       "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\scenes\\testball\\");
+int main(int argc, char** argv) {
+   if (argc < 2) {
+      std::cout << "Usage: ./program_name <working_directory>" << std::endl;
+      return 1;
+   }
+
+   std::string workingDir = std::string(argv[1]);
    Scene scene(workingDir);
    scene.render();
-   // 创建 GLFW 窗口
+
    if (!glfwInit()) {
       std::cerr << "Failed to initialize GLFW" << std::endl;
       return -1;
@@ -44,7 +48,8 @@ int main() {
       glClear(GL_COLOR_BUFFER_BIT);
 
       glRasterPos2i(-1, -1);
-      glDrawPixels(windowWidth, windowHeight, GL_RGB, GL_UNSIGNED_BYTE, scene.camera->film->getData());
+      glDrawPixels(windowWidth, windowHeight, GL_RGB, GL_UNSIGNED_BYTE,
+                   scene.camera->film->getData());
 
       glfwSwapBuffers(window);
 
