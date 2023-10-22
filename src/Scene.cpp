@@ -14,7 +14,7 @@ Scene::Scene(std::string& working_dir) {
    create_light_camera();
    Render::currentCamera = camera;
    Render::currentLightCamera = lightCamera;
-   shader = std::make_unique<ShadowMappingShader>();
+   shader = std::make_unique<GouraudShader>();
 }
 
 void Scene::load_meshes_from_json(const Json& SceneJson) {

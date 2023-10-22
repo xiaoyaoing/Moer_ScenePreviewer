@@ -14,17 +14,7 @@ class Shader {
    virtual bool fragment(Vector3d barycentric, RGBColor& color) = 0;
 };
 
-class ShadowShader : public Shader {
-  private:
-   Matrix3d varying_tri;
-
-  public:
-   ShadowShader() = default;
-   Vector4d vertex(int iface, int nthvert) override final;
-   bool fragment(Vector3d barycentric, RGBColor& color) override final;
-};
-
-class ShadowMappingShader : public Shader {
+class GouraudShader : public Shader {
   private:
    Matrix3d varying_tri;     // triangle coordinates before Viewport transform,
                              // written by VS, read by FS
@@ -34,13 +24,54 @@ class ShadowMappingShader : public Shader {
 
    Matrix4d uniform_M;        //  Projection*View
    Matrix4d uniform_MIT;      // (Projection*View).invert_transpose()
-   Matrix4d uniform_Mshadow;  // transform framebuffer screen coordinates to
-                              // shadowbuffer screen coordinates
 
   public:
-   ShadowMappingShader();
+   GouraudShader();
    Vector4d vertex(int iface, int nthvert) override final;
    bool fragment(Vector3d barycentric, RGBColor& color) override final;
 };
+
+// class ShadowShader : public Shader {
+//    /*
+
+//    █▀▀▄ █▀▀ █▀▀█ █▀▀█ █▀▀ █▀▀ █▀▀█ ▀▀█▀▀ █▀▀ █▀▀▄
+//    █░░█ █▀▀ █░░█ █▄▄▀ █▀▀ █░░ █▄▄█ ░░█░░ █▀▀ █░░█
+//    ▀▀▀░ ▀▀▀ █▀▀▀ ▀░▀▀ ▀▀▀ ▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀ ▀▀▀░
+
+//    */
+//    Matrix3d varying_tri;
+
+//   public:
+//    ShadowShader() = default;
+//    Vector4d vertex(int iface, int nthvert) override final;
+//    bool fragment(Vector3d barycentric, RGBColor& color) override final;
+// };
+
+// class ShadowMappingShader : public Shader {
+//    /*
+
+//       █▀▀▄ █▀▀ █▀▀█ █▀▀█ █▀▀ █▀▀ █▀▀█ ▀▀█▀▀ █▀▀ █▀▀▄
+//       █░░█ █▀▀ █░░█ █▄▄▀ █▀▀ █░░ █▄▄█ ░░█░░ █▀▀ █░░█
+//       ▀▀▀░ ▀▀▀ █▀▀▀ ▀░▀▀ ▀▀▀ ▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀ ▀▀▀░
+
+//    */
+//   private:
+//    Matrix3d varying_tri;     // triangle coordinates before Viewport
+//    transform,
+//                              // written by VS, read by FS
+//    Matrix3d varying_normal;  // the normal vector of this triangle,
+//                              // written by VS, read by FS
+//    Vector3d varying_intensity;
+
+//    Matrix4d uniform_M;        //  Projection*View
+//    Matrix4d uniform_MIT;      // (Projection*View).invert_transpose()
+//    Matrix4d uniform_Mshadow;  // transform framebuffer screen coordinates to
+//                               // shadowbuffer screen coordinates
+
+//   public:
+//    ShadowMappingShader();
+//    Vector4d vertex(int iface, int nthvert) override final;
+//    bool fragment(Vector3d barycentric, RGBColor& color) override final;
+// };
 
 #endif
