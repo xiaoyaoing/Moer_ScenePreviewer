@@ -37,6 +37,7 @@ void Scene::load_mesh_from_json(const Json& entityJson) {
 #ifdef DEBUG
          std::cout << "Load quad." << std::endl;
 #endif
+         return;
          mesh = std::make_shared<Quad>();
       } else if (type == "cube") {
 #ifdef DEBUG
