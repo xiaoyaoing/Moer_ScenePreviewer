@@ -88,11 +88,8 @@ void triangle(std::vector<Vector4d>& pointsWithWeight, Shader& shader,
 
    std::vector<Vector4d> points = pointsWithWeight;
    for (int i = 0; i < 3; i++) {
-      std::cout << points[i].transpose() << std::endl;
       points[i] = points[i] / points[i].w();
-      std::cout << points[i].transpose() << std::endl;
    }
-   std::cout << std::endl;
    for (int i = 0; i < 3; i++) {
       updateBoundingBox(points[i], BBoxMin, BBoxMax, clamp);
    }
@@ -100,11 +97,6 @@ void triangle(std::vector<Vector4d>& pointsWithWeight, Shader& shader,
    Vector2i samplePoint;
    Vector2i sample_x_range(std::floor(BBoxMin.x()), std::ceil(BBoxMax.x()));
    Vector2i sample_y_range(std::floor(BBoxMin.y()), std::ceil(BBoxMax.y()));
-
-   std::cout << sample_x_range.transpose() << std::endl;
-   std::cout << sample_y_range.transpose() << std::endl;
-   std::cout << std::endl;
-   std::cout << std::endl;
 
    for (samplePoint.x() = sample_x_range[0];
         samplePoint.x() < sample_x_range[1]; samplePoint.x()++) {
