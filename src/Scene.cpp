@@ -47,7 +47,7 @@ void Scene::load_mesh_from_json(const Json& entityJson) {
          throw std::invalid_argument("Unknown value for key 'type': " + type);
       }
 
-      if (!entityJson.at("transform").empty()) {
+      if (entityJson.contains("transform") && !entityJson.at("transform").empty()) {
          auto transform = getTransform(entityJson.at("transform"));
          mesh->apply(transform);
       }
@@ -79,11 +79,19 @@ Matrix4d Scene::getTransform(const Json& transformJson) {
       }
       if (transformJson.contains("scale")) {
          auto scale = transformJson.at("scale");
-         ret *= Transform::getScale(scale[0], scale[1], scale[2]);
+         if (scale.is_array()) {
+            ret *= Transform::getScale(scale[0], scale[1], scale[2]);
 #ifdef DEBUG
-         std::cout << "Scale: " << scale[0] << ' ' << scale[1] << ' '
-                   << scale[2] << std::endl;
+            std::cout << "Scale: " << scale[0] << ' ' << scale[1] << ' '
+                      << scale[2] << std::endl;
 #endif
+         } else {
+            ret *= Transform::getScale(scale.get<double>(), scale.get<double>(),
+                                       scale.get<double>());
+#ifdef DEBUG
+            std::cout << "Scale: " << scale.get<double>() << std::endl;
+#endif
+         }
       }
       if (transformJson.contains("rotation")) {
          auto rotation = transformJson.at("rotation");
