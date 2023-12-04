@@ -16,7 +16,7 @@ class GLWindow : public IWindow {
 
    void* getNativeWindow() override;
    void setNativeWindow(void* window) override;
-   void onScroll(double delta) override;
+   void onScroll(float delta) override;
    void onKey(int key, int scancode, int action, int mods) override;
    void onResize(int width, int height) override;
    void onClose() override;

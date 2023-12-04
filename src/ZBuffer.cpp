@@ -2,16 +2,16 @@
 
 ZBuffer::ZBuffer(size_t _width, size_t _height)
     : width(_width), height(_height) {
-   data.resize(_width * _height, std::numeric_limits<double>::lowest());
+   data.resize(_width * _height, std::numeric_limits<float>::lowest());
 }
 
-double ZBuffer::getPixel(size_t x, size_t y) {
+float ZBuffer::getPixel(size_t x, size_t y) {
    if (x > width || y > height) {
       throw std::out_of_range("Out of Image's range");
    }
    return data[y * width + x];
 }
-bool ZBuffer::setPixel(double x, double y, double depth) {
+bool ZBuffer::setPixel(float x, float y, float depth) {
    if (x > width || y > height) {
       throw std::out_of_range("Out of Image's range");
    }

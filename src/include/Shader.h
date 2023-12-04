@@ -1,77 +1,22 @@
-#ifndef __SHADER_H__
-#define __SHADER_H__
+#pragma once
 #include <Eigen/Dense>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 
-#include "RenderTarget.h"
-using Vector4d = Eigen::Vector4d;
-using Vector3d = Eigen::Vector3d;
-using Matrix3d = Eigen::Matrix3d;
-using Matrix4d = Eigen::Matrix4d;
+#include "glad/glad.h"
+
 
 class Shader {
   public:
-   virtual Vector4d vertex(int iface, int nthvert) = 0;
-   virtual bool fragment(Vector3d barycentric, RGBColor& color) = 0;
+   unsigned int programID;
+   // constructor reads and builds the shader
+   Shader(const char *vertexPath, const char *fragmentPath);
+   // use/activate the shader
+   void use();
+   // utility uniform functions
+   void setBool(const std::string &name, bool value) const;
+   void setInt(const std::string &name, int value) const;
+   void setFloat(const std::string &name, float value) const;
 };
-
-class GouraudShader : public Shader {
-  private:
-   Matrix3d varying_tri;     // triangle coordinates before Viewport transform,
-                             // written by VS, read by FS
-   Matrix3d varying_normal;  // the normal vector of this triangle,
-                             // written by VS, read by FS
-   Vector3d varying_intensity;
-
-   Matrix4d uniform_M;        //  Projection*View
-   Matrix4d uniform_MIT;      // (Projection*View).invert_transpose()
-
-  public:
-   GouraudShader();
-   Vector4d vertex(int iface, int nthvert) override final;
-   bool fragment(Vector3d barycentric, RGBColor& color) override final;
-};
-
-// class ShadowShader : public Shader {
-//    /*
-
-//    █▀▀▄ █▀▀ █▀▀█ █▀▀█ █▀▀ █▀▀ █▀▀█ ▀▀█▀▀ █▀▀ █▀▀▄
-//    █░░█ █▀▀ █░░█ █▄▄▀ █▀▀ █░░ █▄▄█ ░░█░░ █▀▀ █░░█
-//    ▀▀▀░ ▀▀▀ █▀▀▀ ▀░▀▀ ▀▀▀ ▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀ ▀▀▀░
-
-//    */
-//    Matrix3d varying_tri;
-
-//   public:
-//    ShadowShader() = default;
-//    Vector4d vertex(int iface, int nthvert) override final;
-//    bool fragment(Vector3d barycentric, RGBColor& color) override final;
-// };
-
-// class ShadowMappingShader : public Shader {
-//    /*
-
-//       █▀▀▄ █▀▀ █▀▀█ █▀▀█ █▀▀ █▀▀ █▀▀█ ▀▀█▀▀ █▀▀ █▀▀▄
-//       █░░█ █▀▀ █░░█ █▄▄▀ █▀▀ █░░ █▄▄█ ░░█░░ █▀▀ █░░█
-//       ▀▀▀░ ▀▀▀ █▀▀▀ ▀░▀▀ ▀▀▀ ▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀ ▀▀▀░
-
-//    */
-//   private:
-//    Matrix3d varying_tri;     // triangle coordinates before Viewport
-//    transform,
-//                              // written by VS, read by FS
-//    Matrix3d varying_normal;  // the normal vector of this triangle,
-//                              // written by VS, read by FS
-//    Vector3d varying_intensity;
-
-//    Matrix4d uniform_M;        //  Projection*View
-//    Matrix4d uniform_MIT;      // (Projection*View).invert_transpose()
-//    Matrix4d uniform_Mshadow;  // transform framebuffer screen coordinates to
-//                               // shadowbuffer screen coordinates
-
-//   public:
-//    ShadowMappingShader();
-//    Vector4d vertex(int iface, int nthvert) override final;
-//    bool fragment(Vector3d barycentric, RGBColor& color) override final;
-// };
-
-#endif

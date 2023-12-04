@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
 void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
-                         std::vector<Vector3d>& dst);
+                         std::vector<Vector3f>& dst);
 void components_to_vec2f(const std::vector<tinyobj::real_t>& components,
                          std::vector<Vector2d>& dst);
 void load_triangle_faces(const tinyobj::shape_t& shape,
@@ -49,37 +49,37 @@ size_t Mesh::faces_nr() { return faces.size(); }
 
 size_t Mesh::vertices_nr() { return vertices.size(); }
 
-Vector3d Mesh::normal(size_t iface, size_t nth_vertex) {
+Vector3f Mesh::normal(size_t iface, size_t nth_vertex) {
    return normals[faces[iface][nth_vertex][2]].normalized();
 }
 
-Vector3d Mesh::vertex(size_t iface, size_t nth_vertex) {
+Vector3f Mesh::vertex(size_t iface, size_t nth_vertex) {
    return vertices[faces[iface][nth_vertex][0]];
 }
 
-Vector3d Mesh::vertex(size_t ivertex) { return vertices[ivertex]; }
+Vector3f Mesh::vertex(size_t ivertex) { return vertices[ivertex]; }
 
 void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
-                         std::vector<Vector3d>& dst) {
+                         std::vector<Vector3f>& dst) {
    if (components.size() % 3 != 0) {
       throw "Load Error";
    }
    size_t component_nr = components.size() / 3;
    dst.reserve(component_nr);
    for (size_t i = 0; i < component_nr; i++) {
-      dst.push_back(Vector3d(components[i * 3], components[i * 3 + 1],
+      dst.push_back(Vector3f(components[i * 3], components[i * 3 + 1],
                              components[i * 3 + 2]));
    }
 }
 
-void Mesh::apply(Matrix4d transform) {
+void Mesh::apply(Matrix4f transform) {
    for (size_t i = 0; i < vertices.size(); i++) {
-      Vector4d v = (transform * vertices[i].homogeneous());
+      Vector4f v = (transform * vertices[i].homogeneous());
       if (v.w() != 0) v /= v.w();
       vertices[i] = v.head<3>();
    }
    for (size_t i = 0; i < normals.size(); i++) {
-      Vector4d v =
+      Vector4f v =
           (transform.inverse().transpose() * normals[i].homogeneous());
       if (v.w() != 0) v /= v.w();
       normals[i] = v.head<3>().normalized();
@@ -126,12 +126,12 @@ Quad::Quad() : Mesh() {
       |                    |
    a(-0.5,0,0.5)-----b(0.5,0,0.5)
    */
-   vertices.push_back(Vector3d(-0.5f, 0, 0.5f));  // a
-   vertices.push_back(Vector3d(0.5, 0, 0.5));
-   vertices.push_back(Vector3d(0.5f, 0, -0.5f));
-   vertices.push_back(Vector3d(-0.5f, 0, -0.5f));  // d
+   vertices.push_back(Vector3f(-0.5f, 0, 0.5f));  // a
+   vertices.push_back(Vector3f(0.5, 0, 0.5));
+   vertices.push_back(Vector3f(0.5f, 0, -0.5f));
+   vertices.push_back(Vector3f(-0.5f, 0, -0.5f));  // d
 
-   normals.push_back(Vector3d(0, 1, 0));
+   normals.push_back(Vector3f(0, 1, 0));
    // no uv for now
    Vector3i a(0, 0, 0), b(1, 0, 0), c(2, 0, 0), d(3, 0, 0);
    faces.resize(2);  // two faces for a Quad

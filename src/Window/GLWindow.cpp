@@ -32,7 +32,7 @@ void GLWindow::onResize(int width, int height) {
    render();
 }
 
-void GLWindow::onScroll(double delta) {
+void GLWindow::onScroll(float delta) {
    // mSceneView->on_mouse_wheel(delta);
 }
 
@@ -79,7 +79,7 @@ void GLWindow::handleInput() {
       // mSceneView->reset_view();
    }
 
-   double x, y;
+   float x, y;
    glfwGetCursorPos(glfwWindow, &x, &y);
 
    // mSceneView->on_mouse_move(x, y, Input::GetPressedButton(mWindow));

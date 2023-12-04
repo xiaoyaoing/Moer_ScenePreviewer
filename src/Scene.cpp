@@ -63,11 +63,11 @@ void Scene::load_mesh_from_json(const Json& entityJson) {
    }
 }
 
-Matrix4d Scene::getTransform(const Json& transformJson) {
+Matrix4f Scene::getTransform(const Json& transformJson) {
 #ifdef DEBUG
    std::cout << "Getting Transform for this entity..." << std::endl;
 #endif
-   Matrix4d ret = Matrix4d::Identity();
+   Matrix4f ret = Matrix4f::Identity();
    try {
       if (transformJson.contains("translate")) {
          auto translate = transformJson.at("translate");
@@ -87,16 +87,16 @@ Matrix4d Scene::getTransform(const Json& transformJson) {
                       << scale[2] << std::endl;
 #endif
          } else {
-            ret *= Transform::getScale(scale.get<double>(), scale.get<double>(),
-                                       scale.get<double>());
+            ret *= Transform::getScale(scale.get<float>(), scale.get<float>(),
+                                       scale.get<float>());
 #ifdef DEBUG
-            std::cout << "Scale: " << scale.get<double>() << std::endl;
+            std::cout << "Scale: " << scale.get<float>() << std::endl;
 #endif
          }
       }
       if (transformJson.contains("rotation")) {
          auto rotation = transformJson.at("rotation");
-         double x = rotation[0], y = rotation[1], z = rotation[2];
+         float x = rotation[0], y = rotation[1], z = rotation[2];
          ret *= Transform::getRotateEuler(
              Transform::AngleDegreeValue(x), Transform::AngleDegreeValue(y),
              Transform::AngleDegreeValue(z), Transform::EulerType::EULER_YZX);
@@ -128,13 +128,13 @@ void Scene::create_light_camera() {
 #ifdef DEBUG
    std::cout << "Creating lightCamera..." << std::endl;
 #endif
-   Point3d lookAt, lookFrom;
-   Vector3d up;
+   Point3f lookAt, lookFrom;
+   Vector3f up;
    lookFrom = camera->cameraPosition;
    lookAt = camera->pointLookAt;
    up = camera->up;
 
-   double xFov = 45.f;
+   float xFov = 45.f;
    Vector2i resolution;
    resolution.x() = camera->film->getWidth();
    resolution.y() = camera->film->getHeight();
@@ -149,7 +149,7 @@ void Scene::render() {
    for (auto& mesh : meshes) {
       Render::setRenderTarget(mesh, camera, lightCamera);
       for (int i = 0; i < mesh->faces_nr(); i++) {
-         std::vector<Vector4d> screen_coords(3);
+         std::vector<Vector4f> screen_coords(3);
          for (int j = 0; j < 3; j++) {
             screen_coords[j] = shader->vertex(i, j);
          }
