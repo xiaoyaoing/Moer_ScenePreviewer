@@ -101,3 +101,7 @@ void Shader::createProgram(unsigned int vertex, unsigned int fragment) {
                 << infoLog << std::endl;
    }
 }
+
+ScreenShader::ScreenShader()
+    : Shader("D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\screen.vs",
+             "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\screen.fs") {}
