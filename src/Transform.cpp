@@ -54,9 +54,9 @@ Matrix4f getRotateEuler(const AngleValue& x, const AngleValue& y,
                         const AngleValue& z, EulerType type) {
    Matrix4f retVal = Eigen::Matrix4f::Identity();
    Eigen::Matrix3f block;
-   auto rotX = Eigen::AngleAxisd(x.getRadians(), Eigen::Vector3f::UnitX());
-   auto rotY = Eigen::AngleAxisd(y.getRadians(), Eigen::Vector3f::UnitY());
-   auto rotZ = Eigen::AngleAxisd(z.getRadians(), Eigen::Vector3f::UnitZ());
+   auto rotX = Eigen::AngleAxisf(x.getRadians(), Eigen::Vector3f::UnitX());
+   auto rotY = Eigen::AngleAxisf(y.getRadians(), Eigen::Vector3f::UnitY());
+   auto rotZ = Eigen::AngleAxisf(z.getRadians(), Eigen::Vector3f::UnitZ());
    if (type == EulerType::EULER_XYZ) {
       block = rotZ * rotY * rotX;
    } else if (type == EulerType::EULER_ZYX) {

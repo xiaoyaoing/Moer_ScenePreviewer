@@ -1,7 +1,7 @@
 #pragma once
 #include <Eigen/Dense>
 
-#include "Shader.h";
+#include "Shader.h"
 
 using Vector3f = Eigen::Vector3f;
 class Material {

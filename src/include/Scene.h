@@ -10,7 +10,6 @@
 #include "Light.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "Render.h"
 #include "Shader.h"
 #include "Transform.h"
 #include "VertexArrayObject.h"

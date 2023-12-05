@@ -2,10 +2,8 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 
-#include "Image.h"
 #include "Shader.h"
 #include "Transform.h"
-#include "ZBuffer.h"
 
 using Vector3f = Eigen::Vector3f;
 using Vector4f = Eigen::Vector4f;
