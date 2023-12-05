@@ -1,6 +1,6 @@
 #include "VertexArrayObject.h"
 
-void VertexArrayObject::create_buffers(const Mesh& mesh) {
+void VertexArrayObject::create_buffers(std::shared_ptr<Mesh> mesh) {
    // Create and bind VAO
    glGenVertexArrays(1, &VAO);
    glBindVertexArray(VAO);
@@ -8,16 +8,16 @@ void VertexArrayObject::create_buffers(const Mesh& mesh) {
    // Create and bind VBO - Vertex positions
    glGenBuffers(1, &VBO);
    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-   glBufferData(GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof(Vector3f),
-                mesh.vertices.data(), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(Vector3f),
+                mesh->vertices.data(), GL_STATIC_DRAW);
    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
    glEnableVertexAttribArray(0);
 
    // Create and bind VBO - Normals
    glGenBuffers(1, &VBO);
    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-   glBufferData(GL_ARRAY_BUFFER, mesh.normals.size() * sizeof(Vector3f),
-                mesh.normals.data(), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(Vector3f),
+                mesh->normals.data(), GL_STATIC_DRAW);
    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
    glEnableVertexAttribArray(1);
 
@@ -25,8 +25,8 @@ void VertexArrayObject::create_buffers(const Mesh& mesh) {
    // Does not use this in this project for now.
    glGenBuffers(1, &VBO);
    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-   glBufferData(GL_ARRAY_BUFFER, mesh.uvs.size() * sizeof(Vector2f),
-                mesh.uvs.data(), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, mesh->uvs.size() * sizeof(Vector2f),
+                mesh->uvs.data(), GL_STATIC_DRAW);
    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
    glEnableVertexAttribArray(2);
 
@@ -35,12 +35,12 @@ void VertexArrayObject::create_buffers(const Mesh& mesh) {
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
    // Calculate the number of indices
-   indexCnt = mesh.faces.size() * 3;
-   assert(indexCnt == mesh.vertices.size());
+   indexCnt = mesh->faces.size() * 3;
+   assert(indexCnt == mesh->vertices.size());
 
    // Copy index data to EBO
    std::vector<unsigned int> indices;
-   for (const auto& face : mesh.faces) {
+   for (const auto& face : mesh->faces) {
       for (const auto& vertexIndex : face) {
          indices.push_back(vertexIndex.x());
       }
@@ -98,7 +98,7 @@ QuadVertexArrayObject::QuadVertexArrayObject() {
    glBindVertexArray(0);
 }
 
-void QuadVertexArrayObject::draw(){
+void QuadVertexArrayObject::draw() {
    bind();
    glDrawArrays(GL_TRIANGLES, 0, 6);
    unbind();

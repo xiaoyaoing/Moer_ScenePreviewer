@@ -33,3 +33,8 @@ class Shader {
    unsigned int compileShader(std::string &shaderCode, GLenum shaderType);
    void createProgram(unsigned int vertex, unsigned int fragment);
 };
+
+class ScreenShader : public Shader {
+  public:
+   ScreenShader();
+};

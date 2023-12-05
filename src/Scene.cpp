@@ -1,6 +1,8 @@
 #include "Scene.h"
 
-Scene::Scene(std::string& working_dir) {
+Scene::Scene(std::string& working_dir)
+    : shader("D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\phone.vs",
+             "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\phone.fs") {
    workingDir = working_dir;
    std::string jsonPath = workingDir + "scene.json";
    std::ifstream file(jsonPath);
@@ -9,21 +11,37 @@ Scene::Scene(std::string& working_dir) {
       file >> SceneJson;
       file.close();
    }
-   load_meshes_from_json(SceneJson);
-   load_camera_from_json(SceneJson);
-   create_light_camera();
-   Render::currentCamera = camera;
-   Render::currentLightCamera = lightCamera;
-   shader = std::make_unique<GouraudShader>();
+   LoadMeshesFronJson(SceneJson);
+   LoadCameraFromJson(SceneJson);
+   createVAOsFromMeshes();
+   light.position = camera->cameraPosition;
 }
 
-void Scene::load_meshes_from_json(const Json& SceneJson) {
+void Scene::render() {
+   shader.use();
+   material.update(shader);
+   light.update(shader);
+   camera->update(shader);
+   
+   framebuffer.bind();
+   for (auto&& VAO : VAOs) {
+      VAO.draw();
+   }
+   framebuffer.unbind();
+
+   screenShader.use();
+   glDisable(GL_DEPTH_TEST);
+   glBindTexture(GL_TEXTURE_2D, framebuffer.get_texture());
+   quadVAO.draw();
+}
+
+void Scene::LoadMeshesFronJson(const Json& SceneJson) {
    for (auto& entity : SceneJson.at("entities")) {
-      load_mesh_from_json(entity);
+      LoadSingleMeshFromJson(entity);
    }
 }
 
-void Scene::load_mesh_from_json(const Json& entityJson) {
+void Scene::LoadSingleMeshFromJson(const Json& entityJson) {
    try {
       std::string type = entityJson.at("type");
       std::shared_ptr<Mesh> mesh = nullptr;
@@ -48,7 +66,8 @@ void Scene::load_mesh_from_json(const Json& entityJson) {
          throw std::invalid_argument("Unknown value for key 'type': " + type);
       }
 
-      if (entityJson.contains("transform") && !entityJson.at("transform").empty()) {
+      if (entityJson.contains("transform") &&
+          !entityJson.at("transform").empty()) {
          auto transform = getTransform(entityJson.at("transform"));
          mesh->apply(transform);
       }
@@ -113,7 +132,7 @@ Matrix4f Scene::getTransform(const Json& transformJson) {
    }
 }
 
-void Scene::load_camera_from_json(const Json& sceneJson) {
+void Scene::LoadCameraFromJson(const Json& sceneJson) {
 #ifdef DEBUG
    std::cout << "Loading Camera..." << std::endl;
 #endif
@@ -124,37 +143,10 @@ void Scene::load_camera_from_json(const Json& sceneJson) {
 #endif
 }
 
-void Scene::create_light_camera() {
-#ifdef DEBUG
-   std::cout << "Creating lightCamera..." << std::endl;
-#endif
-   Point3f lookAt, lookFrom;
-   Vector3f up;
-   lookFrom = camera->cameraPosition;
-   lookAt = camera->pointLookAt;
-   up = camera->up;
-
-   float xFov = 45.f;
-   Vector2i resolution;
-   resolution.x() = camera->film->getWidth();
-   resolution.y() = camera->film->getHeight();
-   lightCamera =
-       std::make_shared<PinHoleCamera>(lookFrom, lookAt, up, xFov, resolution);
-#ifdef DEBUG
-   std::cout << "Create lightCamera successfully." << std::endl;
-#endif
-}
-
-void Scene::render() {
-   for (auto& mesh : meshes) {
-      Render::setRenderTarget(mesh, camera, lightCamera);
-      for (int i = 0; i < mesh->faces_nr(); i++) {
-         std::vector<Vector4f> screen_coords(3);
-         for (int j = 0; j < 3; j++) {
-            screen_coords[j] = shader->vertex(i, j);
-         }
-         Render::triangle(screen_coords, *shader, *camera->zBuffer,
-                          *camera->film);
-      }
+void Scene::createVAOsFromMeshes() {
+   for (auto&& mesh : meshes) {
+      VertexArrayObject VAO;
+      VAO.create_buffers(mesh);
+      VAOs.push_back(VAO);
    }
 }
