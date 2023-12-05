@@ -79,7 +79,7 @@ void GLWindow::handleInput() {
       // mSceneView->reset_view();
    }
 
-   float x, y;
+   double x, y;
    glfwGetCursorPos(glfwWindow, &x, &y);
 
    // mSceneView->on_mouse_move(x, y, Input::GetPressedButton(mWindow));

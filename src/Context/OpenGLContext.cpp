@@ -7,8 +7,7 @@ static void on_key_callback(GLFWwindow* glfwWindow, int key, int scancode,
    window->onKey(key, scancode, action, mods);
 }
 
-static void on_scroll_callback(GLFWwindow* window, float xoffset,
-                               float yoffset) {}
+static void on_scroll_callback(GLFWwindow* window, double xoffset, double yoffset){}
 
 static void on_window_size_callback(GLFWwindow* window, int width, int height) {
 
