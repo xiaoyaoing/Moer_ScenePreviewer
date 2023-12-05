@@ -77,12 +77,17 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
    viewPort = Transform::getViewPort(resolution);
    worldToScreen = viewPort * projection * view;
 
-   film = std::make_unique<RGBColorImage>(resolution[0], resolution[1]);
-   zBuffer = std::make_unique<ZBuffer>(resolution[0], resolution[1]);
-
    this->right = view.row(0).head<3>();
    this->up = view.row(1).head(3);
    this->lookAt = -view.row(2).head<3>();
    this->pointLookAt = lookAt;
    this->cameraPosition = lookFrom;
+   this->model = Matrix4f::Identity();
+}
+
+void PinHoleCamera::update(Shader shader) {
+   shader.setMatrix4f("model", model);
+   shader.setMatrix4f("view", view);
+   shader.setMatrix4f("projection", projection);
+   shader.setVector3f("viewPos", cameraPosition);
 }

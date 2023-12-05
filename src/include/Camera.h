@@ -1,12 +1,11 @@
-#ifndef __CAMERA_H__
-#define __CAMERA_H__
+#pragma once
 #include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "Image.h"
+#include "Shader.h"
 #include "Transform.h"
 #include "ZBuffer.h"
-
 
 using Vector3f = Eigen::Vector3f;
 using Vector4f = Eigen::Vector4f;
@@ -23,13 +22,15 @@ class PinHoleCamera {
    Point3f cameraPosition, pointLookAt;
 
   public:
-   Matrix4f view, projection, viewPort;
+   // Shader is a light-weight class, so just pass value
+   void update(Shader shader);
+
+  public:
+   // model matrix = indentiy
+   Matrix4f model, view, projection, viewPort;
    Matrix4f worldToScreen;
-   std::unique_ptr<RGBColorImage> film;
-   std::unique_ptr<ZBuffer> zBuffer;
 
   private:
    void setActualValue(Point3f lookFrom, Point3f lookAt, Vector3f up,
                        float xFov, Vector2i resolution);
 };
-#endif
