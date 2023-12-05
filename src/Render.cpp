@@ -23,26 +23,26 @@ Vector3f barycentric(std::vector<Vector4f>& TriangleVertices,
    return ret;
 }
 
-void updateBoundingBox(const Vector4f& point, Vector2d& bboxmin,
-                       Vector2d& bboxmax, const Vector2d& clamp) {
-   bboxmin[0] = std::max(0.0, std::min(bboxmin.x(), point.x()));
-   bboxmin[1] = std::max(0.0, std::min(bboxmin.y(), point.y()));
+void updateBoundingBox(const Vector4f& point, Vector2f& bboxmin,
+                       Vector2f& bboxmax, const Vector2f& clamp) {
+   bboxmin[0] = std::max(0.f, std::min(bboxmin.x(), point.x()));
+   bboxmin[1] = std::max(0.f, std::min(bboxmin.y(), point.y()));
 
    bboxmax[0] = std::min(clamp.x(), std::max(bboxmax.x(), point.x()));
    bboxmax[1] = std::min(clamp.y(), std::max(bboxmax.y(), point.y()));
 }
 
-Vector2d initializeClamp(const RGBColorImage& image) {
-   return Vector2d(image.getWidth() - 1, image.getHeight() - 1);
+Vector2f initializeClamp(const RGBColorImage& image) {
+   return Vector2f(image.getWidth() - 1, image.getHeight() - 1);
 }
 
-Vector2d initializeBBoxMin() {
-   return Vector2d(std::numeric_limits<float>::max(),
+Vector2f initializeBBoxMin() {
+   return Vector2f(std::numeric_limits<float>::max(),
                    std::numeric_limits<float>::max());
 }
 
-Vector2d initializeBBoxMax() {
-   return Vector2d(-std::numeric_limits<float>::max(),
+Vector2f initializeBBoxMax() {
+   return Vector2f(-std::numeric_limits<float>::max(),
                    -std::numeric_limits<float>::max());
 }
 
@@ -82,9 +82,9 @@ void rasterizePixel(const Vector2i& pointInBBox,
 
 void triangle(std::vector<Vector4f>& pointsWithWeight, Shader& shader,
               ZBuffer& zbuffer, RGBColorImage& image) {
-   Vector2d BBoxMin = initializeBBoxMin();
-   Vector2d BBoxMax = initializeBBoxMax();
-   Vector2d clamp = initializeClamp(image);
+   Vector2f BBoxMin = initializeBBoxMin();
+   Vector2f BBoxMax = initializeBBoxMax();
+   Vector2f clamp = initializeClamp(image);
 
    std::vector<Vector4f> points = pointsWithWeight;
    for (int i = 0; i < 3; i++) {

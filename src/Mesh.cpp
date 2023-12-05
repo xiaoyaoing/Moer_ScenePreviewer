@@ -3,7 +3,7 @@
 void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
                          std::vector<Vector3f>& dst);
 void components_to_vec2f(const std::vector<tinyobj::real_t>& components,
-                         std::vector<Vector2d>& dst);
+                         std::vector<Vector2f>& dst);
 void load_triangle_faces(const tinyobj::shape_t& shape,
                          std::vector<std::vector<Vector3i>>& faces);
 
@@ -87,14 +87,14 @@ void Mesh::apply(Matrix4f transform) {
 }
 
 void components_to_vec2f(const std::vector<tinyobj::real_t>& components,
-                         std::vector<Vector2d>& dst) {
+                         std::vector<Vector2f>& dst) {
    if (components.size() % 2 != 0) {
       throw "Load Error";
    }
    size_t component_nr = components.size() / 2;
    dst.reserve(component_nr);
    for (size_t i = 0; i < component_nr; i++) {
-      dst.push_back(Vector2d(components[i * 2], components[i * 2 + 1]));
+      dst.push_back(Vector2f(components[i * 2], components[i * 2 + 1]));
    }
 }
 
