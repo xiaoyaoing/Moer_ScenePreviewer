@@ -3,6 +3,7 @@
 
 #include "OpenGLContext.h"
 #include "Window.h"
+#include "Scene.h"
 
 class GLWindow : public IWindow {
   public:
@@ -13,6 +14,7 @@ class GLWindow : public IWindow {
    void render();
    void handleInput();
    bool getIsRunning();
+   void setScene(std::shared_ptr<Scene> scene);
 
    void* getNativeWindow() override;
    void setNativeWindow(void* window) override;
@@ -23,16 +25,7 @@ class GLWindow : public IWindow {
 
   private:
    GLFWwindow* glfwWindow;
-
-   // Render contexts
-   // std::unique_ptr<UIContext> mUICtx;
-
    std::unique_ptr<OpenGL_Context> openglCtx;
-
-   // // UI components
-   // std::unique_ptr<Property_Panel> mPropertyPanel;
-
-   // std::unique_ptr<SceneView> mSceneView;
-
+   std::shared_ptr<Scene> scene;
    bool isRunning;
 };

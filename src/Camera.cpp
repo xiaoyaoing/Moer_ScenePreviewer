@@ -70,12 +70,10 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
    float distToFilm = 1.0f / tan(xFov * Transform::PI_F / 360);
    view = Transform::getLookAt(lookFrom, lookAt - lookFrom, up);
 
-   float nearPlane = -distToFilm;
-   float farPlane = -100.f;
-   projection = Transform::getPerspective(Transform::AngleDegreeValue(xFov),
+   float nearPlane = distToFilm;
+   float farPlane = 100.f;
+   projection = Transform::getOpenGLPerspective(Transform::AngleDegreeValue(xFov),
                                           aspectRatio, nearPlane, farPlane);
-   viewPort = Transform::getViewPort(resolution);
-   worldToScreen = viewPort * projection * view;
 
    this->right = view.row(0).head<3>();
    this->up = view.row(1).head(3);

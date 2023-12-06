@@ -42,10 +42,14 @@ class AngleRadValue : public AngleValue {
 
 Matrix4f getScale(float x, float y, float z);
 Matrix4f getTranslate(float x, float y, float z);
-Matrix4f getRotateEuler(const AngleValue &x, const AngleValue &y,
-                        const AngleValue &z, EulerType type);
-Matrix4f getLookAt(const Vector3f& lookFrom,const Vector3f& lookAt_vec, const Vector3f& up);
-Matrix4f getPerspective(const AngleValue& fov, float aspect,float near,float far);
+Matrix4f getRotateEuler(const AngleValue& x, const AngleValue& y,
+                        const AngleValue& z, EulerType type);
+Matrix4f getLookAt(const Vector3f& lookFrom, const Vector3f& lookAt_vec,
+                   const Vector3f& up);
+Matrix4f getPerspective(const AngleValue& fov, float aspect, float near,
+                        float far);
+Matrix4f getOpenGLPerspective(const AngleValue& xfov, float aspect, float near,
+                              float far);
 Matrix4f getViewPort(Vector2i resolution);
 }  // namespace Transform
 

@@ -14,7 +14,9 @@ Scene::Scene(std::string& working_dir)
    LoadMeshesFronJson(SceneJson);
    LoadCameraFromJson(SceneJson);
    createVAOsFromMeshes();
+   quadVAO.create_buffers();
    light.position = camera->cameraPosition;
+   framebuffer.create_buffers(1280, 720);
 }
 
 void Scene::render() {
@@ -22,7 +24,7 @@ void Scene::render() {
    material.update(shader);
    light.update(shader);
    camera->update(shader);
-   
+
    framebuffer.bind();
    for (auto&& VAO : VAOs) {
       VAO.draw();
@@ -30,6 +32,7 @@ void Scene::render() {
    framebuffer.unbind();
 
    screenShader.use();
+   screenShader.setInt("screenTexture", 0);
    glDisable(GL_DEPTH_TEST);
    glBindTexture(GL_TEXTURE_2D, framebuffer.get_texture());
    quadVAO.draw();
@@ -55,7 +58,6 @@ void Scene::LoadSingleMeshFromJson(const Json& entityJson) {
 #ifdef DEBUG
          std::cout << "Load quad." << std::endl;
 #endif
-         return;
          mesh = std::make_shared<Quad>();
       } else if (type == "cube") {
 #ifdef DEBUG

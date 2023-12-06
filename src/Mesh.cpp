@@ -75,14 +75,12 @@ void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
 void Mesh::apply(Matrix4f transform) {
    for (size_t i = 0; i < vertices.size(); i++) {
       Vector4f v = (transform * vertices[i].homogeneous());
-      if (v.w() != 0) v /= v.w();
-      vertices[i] = v.head<3>();
+      vertices[i] = v.hnormalized();
    }
    for (size_t i = 0; i < normals.size(); i++) {
       Vector4f v =
           (transform.inverse().transpose() * normals[i].homogeneous());
-      if (v.w() != 0) v /= v.w();
-      normals[i] = v.head<3>().normalized();
+      normals[i] = v.hnormalized();
    }
 }
 

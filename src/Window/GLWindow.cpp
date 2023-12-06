@@ -10,6 +10,10 @@ void GLWindow::setNativeWindow(void* window) {
 void* GLWindow::getNativeWindow() { return glfwWindow; }
 bool GLWindow::getIsRunning() { return isRunning; }
 
+void GLWindow::setScene(std::shared_ptr<Scene> scene){
+   this->scene = scene;
+}
+
 bool GLWindow::init(int width, int height, const std::string& title) {
    this->width = width;
    this->height = height;
@@ -47,20 +51,11 @@ void GLWindow::render() {
    // // Clear the view
    openglCtx->preRender();
 
-   // // Initialize UI components
-   // mUICtx->preRender();
-
-   // // render scene to framebuffer and add it to scene view
-   // mSceneView->render();
-
-   // mPropertyPanel->render(mSceneView.get());
-
-   // // Render the UI
-   // mUICtx->postRender();
-
+   scene->render();
+   
    // // Render end, swap buffers
    openglCtx->postRender();
-
+   
    handleInput();
 }
 

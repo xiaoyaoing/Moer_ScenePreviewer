@@ -1,10 +1,10 @@
 #include "Light.h"
 
 void Light::update(Shader shader) {
-   shader.setVector3f("position", position);
-   shader.setVector3f("ambient", ambient);
-   shader.setVector3f("diffuse", diffuse);
-   shader.setVector3f("specular", specular);
+   shader.setVector3f("light.position", position);
+   shader.setVector3f("light.ambient", ambient);
+   shader.setVector3f("light.diffuse", diffuse);
+   shader.setVector3f("light.specular", specular);
 }
 
 DefaultWhiteLight::DefaultWhiteLight() {

@@ -10,6 +10,9 @@ class VertexArrayObject {
    GLuint VBO, VAO, EBO;
    int indexCnt;
 
+  protected:
+   GLuint VBO_normal, VBO_uv;
+
   public:
    void create_buffers(std::shared_ptr<Mesh> mesh);
    void delete_buffers();
@@ -20,6 +23,7 @@ class VertexArrayObject {
 
 class QuadVertexArrayObject : public VertexArrayObject {
   public:
-   QuadVertexArrayObject();
+   void create_buffers();
+   void delete_buffers();
    void draw();
 };

@@ -109,6 +109,7 @@ Matrix4f getOrthographic(float l, float r, float t, float b, float n, float f) {
 
 Matrix4f getPerspective(const AngleValue& xfov, float aspect, float near,
                         float far) {
+   assert(near < 0 && far < 0);
    float left = tan(xfov.getRadians() / 2.f) * near;
    float right = -left;
    float buttom = left * 1.f / aspect;
@@ -122,6 +123,19 @@ Matrix4f getPerspective(const AngleValue& xfov, float aspect, float near,
    std::cout << "Print Perspective :" << std::endl;
    std::cout << perspective << std::endl;
 #endif
+   return perspective;
+}
+
+// Reference: http://www.songho.ca/opengl/gl_projectionmatrix.html
+Matrix4f getOpenGLPerspective(const AngleValue& xfov, float aspect, float near,
+                              float far) {
+   assert(near > 0 && far > 0);
+   float right = tan(xfov.getRadians() / 2.f) * near;
+   float top = right * 1.f / aspect;
+   Matrix4f perspective = Matrix4f::Zero();
+   perspective << near / right, 0, 0, 0, 0, near / top, 0, 0, 0, 0,
+       -(far + near) / (far - near), -2 * (far * near) / (far - near), 0, 0, -1,
+       0;
    return perspective;
 }
 
