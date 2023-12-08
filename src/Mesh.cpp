@@ -25,23 +25,22 @@ Mesh::Mesh(const std::string& file_path) {
       exit(1);
    }
 #ifdef DEBUG
-   printf(" Load mesh obj successfully.\n");
+   printf("# of vertices  = %d\n", (int)(attrib.vertices.size()) / 3);
+   printf("# of normals   = %d\n", (int)(attrib.normals.size()) / 3);
+   printf("# of texcoords = %d\n", (int)(attrib.texcoords.size()) / 2);
+   printf("# of materials = %d\n", (int)objmaterials.size());
+   printf("# of shapes    = %d\n", (int)shapes.size());
 #endif
+
    components_to_vec3f(attrib.vertices, this->vertices);
-#ifdef DEBUG
-   printf(" Load vertices successfully.\n");
-#endif
    components_to_vec3f(attrib.normals, this->normals);
-#ifdef DEBUG
-   printf(" Load normals successfully.\n");
-#endif
    components_to_vec2f(attrib.texcoords, this->uvs);
-#ifdef DEBUG
-   printf(" Load uvs successfully.\n");
-#endif
+
    for (auto shape = shapes.begin(); shape != shapes.end(); shape++) {
+      // createOpenGLData(*shape);
       load_triangle_faces(*shape, this->faces);
    }
+   createOpenGLDataFromFaces();
    std::cout << "Load model: " << file_path << " sucessfully." << std::endl;
 }
 
@@ -73,14 +72,14 @@ void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
 }
 
 void Mesh::apply(Matrix4f transform) {
-   for (size_t i = 0; i < vertices.size(); i++) {
-      Vector4f v = (transform * vertices[i].homogeneous());
-      vertices[i] = v.hnormalized();
+   for (size_t i = 0; i < openglVertices.size(); i++) {
+      Vector4f v = (transform * openglVertices[i].homogeneous());
+      openglVertices[i] = v.hnormalized();
    }
-   for (size_t i = 0; i < normals.size(); i++) {
+   for (size_t i = 0; i < openglNormals.size(); i++) {
       Vector4f v =
-          (transform.inverse().transpose() * normals[i].homogeneous());
-      normals[i] = v.hnormalized();
+          (transform.inverse().transpose() * openglNormals[i].homogeneous());
+      openglNormals[i] = v.hnormalized();
    }
 }
 
@@ -93,6 +92,37 @@ void components_to_vec2f(const std::vector<tinyobj::real_t>& components,
    dst.reserve(component_nr);
    for (size_t i = 0; i < component_nr; i++) {
       dst.push_back(Vector2f(components[i * 2], components[i * 2 + 1]));
+   }
+}
+
+void Mesh::createOpenGLData(const tinyobj::shape_t& shape) {
+   const std::vector<tinyobj::index_t>& indices = shape.mesh.indices;
+   if (indices.size() % 3 != 0) {
+      assert(0);
+   }
+   size_t indices_nr = indices.size() / 3;
+   for (size_t i = 0; i < indices_nr; i++) {
+      for (size_t j = 0; j < 3; j++) {
+         int vertex_index = indices[3 * i + j].vertex_index - 1;
+         int normal_index = indices[3 * i + j].normal_index - 1;
+         openglVertices.push_back(vertices[vertex_index]);
+         openglNormals.push_back(normals[normal_index]);
+         openglIndex.push_back(3 * i + j);
+      }
+   }
+}
+
+void Mesh::createOpenGLDataFromFaces() {
+   size_t faces_nr = faces.size();
+   for (size_t i = 0; i < faces_nr; i++) {
+      assert(faces[i].size() == 3);
+      for (size_t j = 0; j < 3; j++) {
+         int vertex_index = faces[i][j].x();
+         int normal_index = faces[i][j].z();
+         openglVertices.push_back(vertices[vertex_index]);
+         openglNormals.push_back(normals[normal_index]);
+         openglIndex.push_back(3 * i + j);
+      }
    }
 }
 
@@ -140,6 +170,7 @@ Quad::Quad() : Mesh() {
    faces[1].push_back(b);
    faces[1].push_back(c);
    faces[1].push_back(d);
+   createOpenGLDataFromFaces();
 }
 
 Cube::Cube() : Mesh() {
@@ -232,4 +263,5 @@ Cube::Cube() : Mesh() {
    faces[11].emplace_back(0, 0, 5);
    faces[11].emplace_back(2, 0, 5);
    faces[11].emplace_back(3, 0, 5);
+   createOpenGLDataFromFaces();
 }

@@ -8,7 +8,7 @@ void Light::update(Shader shader) {
 }
 
 DefaultWhiteLight::DefaultWhiteLight() {
-   ambient = Vector3f(0.4, 0.4, 0.4);
-   diffuse = Vector3f(1.f, 1.f, 1.f);
+   ambient = Vector3f(0.3, 0.3, 0.3);
+   diffuse = Vector3f(1, 1, 1);
    specular = Vector3f(1.f, 1.f, 1.f);
 }

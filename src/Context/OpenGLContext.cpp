@@ -7,7 +7,8 @@ static void on_key_callback(GLFWwindow* glfwWindow, int key, int scancode,
    window->onKey(key, scancode, action, mods);
 }
 
-static void on_scroll_callback(GLFWwindow* window, double xoffset, double yoffset){}
+static void on_scroll_callback(GLFWwindow* window, double xoffset,
+                               double yoffset) {}
 
 static void on_window_size_callback(GLFWwindow* window, int width, int height) {
 
@@ -30,6 +31,7 @@ bool OpenGL_Context::init(IWindow* window) {
 
    // Create the window and store this window as window pointer
    // so that we can use it in callback functions
+   glfwWindowHint(GLFW_SAMPLES, 4);
    auto glWindow = glfwCreateWindow(window->width, window->height,
                                     window->title.c_str(), nullptr, nullptr);
    window->setNativeWindow(glWindow);
@@ -47,7 +49,7 @@ bool OpenGL_Context::init(IWindow* window) {
    glfwMakeContextCurrent(glWindow);
    gladLoadGL();
    glEnable(GL_DEPTH_TEST);
-
+   glEnable(GL_MULTISAMPLE);
    return true;
 }
 

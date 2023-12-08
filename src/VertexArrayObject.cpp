@@ -9,45 +9,27 @@ void VertexArrayObject::create_buffers(std::shared_ptr<Mesh> mesh) {
    // Create and bind VBO - Vertex positions
    glGenBuffers(1, &VBO);
    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-   glBufferData(GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(Vector3f),
-                mesh->vertices.data(), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, mesh->openglVertices.size() * sizeof(Vector3f),
+                mesh->openglVertices.data(), GL_STATIC_DRAW);
    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
    glEnableVertexAttribArray(0);
 
    // Create and bind VBO - Normals
    glGenBuffers(1, &VBO_normal);
    glBindBuffer(GL_ARRAY_BUFFER, VBO_normal);
-   glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(Vector3f),
-                mesh->normals.data(), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, mesh->openglNormals.size() * sizeof(Vector3f),
+                mesh->openglNormals.data(), GL_STATIC_DRAW);
    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
    glEnableVertexAttribArray(1);
-
-   // Create and bind VBO - UV coordinates
-   // Does not use this in this project for now.
-   glGenBuffers(1, &VBO_uv);
-   glBindBuffer(GL_ARRAY_BUFFER, VBO_uv);
-   glBufferData(GL_ARRAY_BUFFER, mesh->uvs.size() * sizeof(Vector2f),
-                mesh->uvs.data(), GL_STATIC_DRAW);
-   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-   glEnableVertexAttribArray(2);
 
    // Create and bind EBO - Index data
    glGenBuffers(1, &EBO);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-   // Calculate the number of indices
-   indexCnt = mesh->faces.size() * 3;
-
-   // Copy index data to EBO
-   std::vector<unsigned int> indices;
-   for (const auto& face : mesh->faces) {
-      for (const auto& vertexIndex : face) {
-         indices.push_back(vertexIndex.x());
-      }
-   }
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-                indices.data(), GL_STATIC_DRAW);
-   assert(indices.size() == indexCnt);
+   indexCnt = mesh->openglIndex.size();
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                mesh->openglIndex.size() * sizeof(unsigned int),
+                mesh->openglIndex.data(), GL_STATIC_DRAW);
    // Unbind VAO, VBO, and EBO
    glBindVertexArray(0);
    glBindBuffer(GL_ARRAY_BUFFER, 0);

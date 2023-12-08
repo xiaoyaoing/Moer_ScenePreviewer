@@ -16,7 +16,7 @@ Scene::Scene(std::string& working_dir)
    createVAOsFromMeshes();
    quadVAO.create_buffers();
    light.position = camera->cameraPosition;
-   framebuffer.create_buffers(1280, 720);
+   framebuffer.create_buffers(1920, 1080);
 }
 
 void Scene::render() {
@@ -34,6 +34,7 @@ void Scene::render() {
    screenShader.use();
    screenShader.setInt("screenTexture", 0);
    glDisable(GL_DEPTH_TEST);
+   glEnable(GL_MULTISAMPLE);
    glBindTexture(GL_TEXTURE_2D, framebuffer.get_texture());
    quadVAO.draw();
 }
