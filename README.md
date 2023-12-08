@@ -1,5 +1,5 @@
 # Moer_ScenePreviewer
-Moer_ScenePreviewer is a software rasterizer designed to offer fast scene previews for [Moer](https://github.com/NJUCG/Moer).
+Moer_ScenePreviewer is a hardware rasterizer designed to offer fast scene previews for [Moer](https://github.com/NJUCG/Moer).
 
 See [Moer](https://github.com/NJUCG/Moer) for more information about the scene format.
 
