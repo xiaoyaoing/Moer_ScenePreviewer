@@ -23,8 +23,8 @@ The main branch uses OpenGL for rendering.
 If you want to check the CPU rendering version of the code, please switch to the cpu-rendering branch.
 
 # TODO List
-- [] ImGui for creating GUI
-- [] Camera movement
+- [ ] ImGui for creating GUI
+- [ ] Camera movement
 
 # Gallery
 [![teapot.md.png](https://z4a.net/images/2023/12/08/teapot.md.png)](https://z4a.net/image/jyQLYk)
