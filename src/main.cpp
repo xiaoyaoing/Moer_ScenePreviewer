@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
    std::string workingDir = std::string(argv[1]);
 
    std::unique_ptr<GLWindow> window = std::make_unique<GLWindow>();
-   window->init(1920, 1080, "preview");
+   window->init(1280, 720, "preview");
    std::shared_ptr<Scene> scene = std::make_shared<Scene>(workingDir);
    window->setScene(scene);
 

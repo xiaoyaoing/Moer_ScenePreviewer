@@ -3,7 +3,6 @@ Moer_ScenePreviewer is a software rasterizer designed to offer fast scene previe
 
 See [Moer](https://github.com/NJUCG/Moer) for more information about the scene format.
 
-
 # Build
 Moer_ScenePreviewer uses [xmake](https://github.com/xmake-io/xmake) for building. You need to have xmake installed.
 ```
@@ -18,13 +17,17 @@ For example:
 ```
 $ xmake r Moer_ScenePreviewer "..\\..\\..\\..\\scenes\\teapot\\"
 ```
+# Branches
+The main branch uses OpenGL for rendering.
+
+If you want to check the CPU rendering version of the code, please switch to the cpu-rendering branch.
 
 # TODO List
-- [ ] Bug: The rasterizer cannot render properly if the scale of the quad is too big.
-- [ ] Refactor: The renderTarget implementation is too ugly.
+- [] ImGui for creating GUI
+- [] Camera movement
 
 # Gallery
-![green-bathroom](https://z4a.net/images/2023/10/22/green-bathroom.md.png)
-![classroom](https://z4a.net/images/2023/10/22/classroom.md.png)
-![teapot](https://z4a.net/images/2023/10/22/teapot.md.png)
-![testball](https://z4a.net/images/2023/10/22/testball.md.png)
+[![teapot.md.png](https://z4a.net/images/2023/12/08/teapot.md.png)](https://z4a.net/image/jyQLYk)
+[![green-bathroom.md.png](https://z4a.net/images/2023/12/08/green-bathroom.md.png)](https://z4a.net/image/jyQJdN)
+[![classroom.md.png](https://z4a.net/images/2023/12/08/classroom.md.png)](https://z4a.net/image/jyQ1CL)
+[![testball.md.png](https://z4a.net/images/2023/12/08/testball.md.png)](https://z4a.net/image/jyQBew)

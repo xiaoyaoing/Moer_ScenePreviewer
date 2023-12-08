@@ -16,7 +16,7 @@ Scene::Scene(std::string& working_dir)
    createVAOsFromMeshes();
    quadVAO.create_buffers();
    light.position = camera->cameraPosition;
-   framebuffer.create_buffers(1920, 1080);
+   framebuffer.create_buffers(1280, 720);
 }
 
 void Scene::render() {
