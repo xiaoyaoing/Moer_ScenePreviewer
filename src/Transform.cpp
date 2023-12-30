@@ -70,8 +70,8 @@ Matrix4f getRotateEuler(const AngleValue& x, const AngleValue& y,
    return retVal;
 }
 
-Matrix4f getLookAt(const Vector3f& lookFrom, const Vector3f& veclookAt,
-                   const Vector3f& up) {
+Matrix4f getView(const Vector3f& lookFrom, const Vector3f& veclookAt,
+                 const Vector3f& up) {
    Matrix4f translateMat =
        getTranslate(-lookFrom[0], -lookFrom[1], -lookFrom[2]);
    Vector3f realLookAt = veclookAt.normalized();
@@ -82,10 +82,6 @@ Matrix4f getLookAt(const Vector3f& lookFrom, const Vector3f& veclookAt,
        realUp[2], 0.0f, -realLookAt[0], -realLookAt[1], -realLookAt[2], 0.0f,
        0.0f, 0.0f, 0.0f, 1.0f;
    Matrix4f lookAt = rotMat * translateMat;
-#ifdef DEBUG
-   std::cout << "Print LookAt :" << std::endl;
-   std::cout << lookAt << std::endl;
-#endif
    return lookAt;
 }
 
@@ -100,10 +96,6 @@ Matrix4f getOrthographic(float l, float r, float t, float b, float n, float f) {
        0, 0, 1;
 
    Matrix4f ortho = scale * trans;
-#ifdef DEBUG
-   std::cout << "Print Orthographic :" << std::endl;
-   std::cout << ortho << std::endl;
-#endif
    return ortho;
 }
 
@@ -119,10 +111,6 @@ Matrix4f getPerspective(const AngleValue& xfov, float aspect, float near,
    perspective << near, 0, 0, 0, 0, near, 0, 0, 0, 0, near + far, -near * far,
        0, 0, 1, 0;
    perspective = ortho * perspective;
-#ifdef DEBUG
-   std::cout << "Print Perspective :" << std::endl;
-   std::cout << perspective << std::endl;
-#endif
    return perspective;
 }
 
@@ -143,10 +131,6 @@ Matrix4f getViewPort(Vector2i resolution) {
    Matrix4f viewport;
    viewport << resolution[0] / 2.f, 0, 0, resolution[0] / 2.f, 0,
        resolution[1] / 2.f, 0, resolution[1] / 2.f, 0, 0, 1, 0, 0, 0, 0, 1;
-#ifdef DEBUG
-   std::cout << "Print Viewport :" << std::endl;
-   std::cout << viewport << std::endl;
-#endif
    return viewport;
 }
 

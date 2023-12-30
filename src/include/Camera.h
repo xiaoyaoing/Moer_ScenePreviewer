@@ -16,14 +16,20 @@ class PinHoleCamera {
    PinHoleCamera(Point3f lookFrom, Point3f lookAt, Vector3f up,
                  float xFov = 45.f, Vector2i resolution = Vector2i(512, 512));
    PinHoleCamera(const Json& cameraJson);
-   Vector3f lookAt, up, right;
-   Point3f cameraPosition, pointLookAt;
-
-  public:
    // Shader is a light-weight class, so just pass value
    void update(Shader shader);
+   void resetToInitValue();
+   void resetPosition();
+   void resetLookAtPoint();
+   void resetXFov();
 
   public:
+   // Camera properties
+   Vector3f vecLookAt, up, right;
+   Point3f cameraPosition, pointLookAt;
+   float xFov;
+   float aspectRatio;
+
    // model matrix = indentiy
    Matrix4f model, view, projection, viewPort;
    Matrix4f worldToScreen;
@@ -31,4 +37,10 @@ class PinHoleCamera {
   private:
    void setActualValue(Point3f lookFrom, Point3f lookAt, Vector3f up,
                        float xFov, Vector2i resolution);
+   void reCalculateAllMatrices();
+
+  private:
+   Vector3f ini_vecLookAt, ini_up;
+   Point3f ini_cameraPosition, ini_pointLookAt;
+   float ini_xFov;
 };

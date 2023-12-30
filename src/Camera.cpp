@@ -44,20 +44,10 @@ PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
 
 #ifdef DEBUG
    std::cout << " Camera Info: " << std::endl;
-#endif
-#ifdef DEBUG
    std::cout << "    lookFrom: " << lookFrom.transpose() << std::endl;
-#endif
-#ifdef DEBUG
    std::cout << "    lookAt: " << lookAt.transpose() << std::endl;
-#endif
-#ifdef DEBUG
    std::cout << "    up: " << up.transpose() << std::endl;
-#endif
-#ifdef DEBUG
    std::cout << "    xfov: " << xFov << std::endl;
-#endif
-#ifdef DEBUG
    std::cout << "resolution: " << resolution.transpose() << std::endl;
 #endif
    setActualValue(lookFrom, lookAt, up, xFov, resolution);
@@ -68,24 +58,73 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
                                    Vector2i resolution) {
    float aspectRatio = float(resolution[0]) / resolution[1];
    float distToFilm = 1.0f / tan(xFov * Transform::PI_F / 360);
-   view = Transform::getLookAt(lookFrom, lookAt - lookFrom, up);
+   view = Transform::getView(lookFrom, lookAt - lookFrom, up);
 
    float nearPlane = distToFilm;
    float farPlane = 100.f;
-   projection = Transform::getOpenGLPerspective(Transform::AngleDegreeValue(xFov),
-                                          aspectRatio, nearPlane, farPlane);
+   projection = Transform::getOpenGLPerspective(
+       Transform::AngleDegreeValue(xFov), aspectRatio, nearPlane, farPlane);
 
-   this->right = view.row(0).head<3>();
-   this->up = view.row(1).head(3);
-   this->lookAt = -view.row(2).head<3>();
+   this->right = view.row(0).head<3>().normalized();
+   this->up = view.row(1).head(3).normalized();
+   this->vecLookAt = -view.row(2).head<3>().normalized();
    this->pointLookAt = lookAt;
    this->cameraPosition = lookFrom;
+   this->xFov = xFov;
    this->model = Matrix4f::Identity();
+   this->aspectRatio = aspectRatio;
+
+   ini_pointLookAt = pointLookAt;
+   ini_vecLookAt = vecLookAt;
+   ini_cameraPosition = cameraPosition;
+   ini_up = up;
+   ini_xFov = xFov;
+}
+
+void PinHoleCamera::reCalculateAllMatrices() {
+   /*
+   Recalculate all the matrices: view, projection. (model is fixed)
+
+   This function is called exery frame because camera properties can be changed
+   at any time through manual input or keyboard movement.
+
+   Could slow down the performace, but who cares? :)
+   */
+
+   /*------------View Matrix------------*/
+   vecLookAt = pointLookAt - cameraPosition;
+   view = Transform::getView(cameraPosition, vecLookAt, up);
+
+   /*------------Projection Matrix------------*/
+   float distToFilm = 1.0f / tan(xFov * Transform::PI_F / 360);
+   float nearPlane = distToFilm;
+   float farPlane = 100.f;
+   projection = Transform::getOpenGLPerspective(
+       Transform::AngleDegreeValue(xFov), aspectRatio, nearPlane, farPlane);
+
+   this->right = view.row(0).head<3>().normalized();
+   this->up = view.row(1).head(3).normalized();
+   this->vecLookAt = -view.row(2).head<3>().normalized();
 }
 
 void PinHoleCamera::update(Shader shader) {
+   reCalculateAllMatrices();
    shader.setMatrix4f("model", model);
    shader.setMatrix4f("view", view);
    shader.setMatrix4f("projection", projection);
    shader.setVector3f("viewPos", cameraPosition);
 }
+
+void PinHoleCamera::resetToInitValue() {
+   this->up = ini_up;
+   this->vecLookAt = ini_vecLookAt;
+   this->pointLookAt = ini_pointLookAt;
+   this->cameraPosition = ini_cameraPosition;
+   this->xFov = ini_xFov;
+}
+
+void PinHoleCamera::resetPosition() {
+   this->cameraPosition = ini_cameraPosition;
+}
+void PinHoleCamera::resetLookAtPoint() { this->pointLookAt = ini_pointLookAt; }
+void PinHoleCamera::resetXFov() { this->xFov = ini_xFov; }

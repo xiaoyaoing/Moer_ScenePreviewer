@@ -34,9 +34,10 @@ class Scene {
    Scene(int width, int height);
    void render();
    void loadScene(std::string fullScenePath, std::string workingDir);
-
+   void saveScene(std::string fullScenePath);
   private:
    int width, height;  // framebuffer size
+   Json json;
    void LoadMeshesFronJson(const Json& sceneJson);
    void LoadSingleMeshFromJson(const Json& entityJson);
    void LoadCameraFromJson(const Json& sceneJson);

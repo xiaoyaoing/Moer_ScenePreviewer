@@ -1,27 +1,40 @@
 #include "Scene.h"
 
-Scene::Scene(int width, int height)
-    : shader("D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\phone.vs",
-             "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\phone.fs") {
+Scene::Scene(int width, int height) {
    this->width = width;
    this->height = height;
+   this->shader = PhoneShader();
 }
 
 void Scene::loadScene(std::string fullScenePath, std::string workingDir) {
    clearPreviousScene();
    std::ifstream file(fullScenePath);
    this->workingDir = workingDir + "\\";
-   Json SceneJson;
    if (file.is_open()) {
-      file >> SceneJson;
+      file >> json;
       file.close();
    }
-   LoadMeshesFronJson(SceneJson);
-   LoadCameraFromJson(SceneJson);
+   LoadMeshesFronJson(json);
+   LoadCameraFromJson(json);
    createVAOsFromMeshes();
    quadVAO.create_buffers();
    light.position = camera->cameraPosition;
    framebuffer.create_buffers(width, height);
+}
+
+void Scene::saveScene(std::string fullScenePath) {
+   json["camera"]["transform"]["position"] = {camera->cameraPosition[0],
+                                              camera->cameraPosition[1],
+                                              camera->cameraPosition[2]};
+   json["camera"]["transform"]["look_at"] = {
+       camera->pointLookAt[0], camera->pointLookAt[1], camera->pointLookAt[2]};
+   json["camera"]["transform"]["up"] = {camera->up[0], camera->up[1],
+                                        camera->up[2]};
+   std::ofstream ofs(fullScenePath);
+   if (ofs.is_open()) {
+      ofs << json;
+      ofs.close();
+   }
 }
 
 void Scene::render() {
@@ -168,5 +181,6 @@ void Scene::clearPreviousScene() {
    }
    VAOs.clear();
    meshes.clear();
+   json.clear();
    camera = nullptr;
 }

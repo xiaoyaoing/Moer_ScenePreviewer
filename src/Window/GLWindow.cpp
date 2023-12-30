@@ -68,7 +68,6 @@ void GLWindow::render() {
    imguiCtx->postRender();
    // Render end, swap buffers
    openglCtx->postRender();
-   handleInput();
 }
 
 void GLWindow::handleInput() {

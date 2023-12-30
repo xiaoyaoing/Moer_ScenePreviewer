@@ -46,8 +46,8 @@ bool OpenGL_Context::init(IWindow* window) {
    }
 
    glfwSetWindowUserPointer(glWindow, window);
-   glfwSetKeyCallback(glWindow, on_key_callback);
-   glfwSetScrollCallback(glWindow, on_scroll_callback);
+   // glfwSetKeyCallback(glWindow, on_key_callback);
+   // glfwSetScrollCallback(glWindow, on_scroll_callback);
    glfwSetWindowSizeCallback(glWindow, on_window_size_callback);
    glfwSetWindowCloseCallback(glWindow, on_window_close_callback);
    glfwMakeContextCurrent(glWindow);

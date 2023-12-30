@@ -102,6 +102,30 @@ void Shader::createProgram(unsigned int vertex, unsigned int fragment) {
    }
 }
 
-ScreenShader::ScreenShader()
-    : Shader("D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\screen.vs",
-             "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\screen.fs") {}
+ScreenShader::ScreenShader() : Shader() {
+   std::string vertexCode(screenvs);
+   std::string fragmentCode(screenfs);
+   // 2. compile shaders
+   unsigned int vertex = 0, fragment = 0;
+   vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
+   fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
+
+   createProgram(vertex, fragment);
+   // delete shaders; they’re linked into our program and no longer necessary
+   glDeleteShader(vertex);
+   glDeleteShader(fragment);
+}
+
+PhoneShader::PhoneShader() : Shader() {
+   std::string vertexCode(phonevs);
+   std::string fragmentCode(phonefs);
+   // 2. compile shaders
+   unsigned int vertex = 0, fragment = 0;
+   vertex = compileShader(vertexCode, GL_VERTEX_SHADER);
+   fragment = compileShader(fragmentCode, GL_FRAGMENT_SHADER);
+
+   createProgram(vertex, fragment);
+   // delete shaders; they’re linked into our program and no longer necessary
+   glDeleteShader(vertex);
+   glDeleteShader(fragment);
+}
