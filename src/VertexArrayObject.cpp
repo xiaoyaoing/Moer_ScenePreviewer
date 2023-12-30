@@ -43,6 +43,7 @@ void VertexArrayObject::delete_buffers() {
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
    glDeleteBuffers(1, &EBO);
    glDeleteBuffers(1, &VBO);
+   glDeleteBuffers(1, &VBO_normal);
    glDeleteVertexArrays(1, &VAO);
 }
 

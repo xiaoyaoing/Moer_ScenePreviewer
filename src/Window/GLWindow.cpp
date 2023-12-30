@@ -1,8 +1,8 @@
 #include "GLWindow.h"
 
 GLWindow::GLWindow() : glfwWindow(nullptr), isRunning(true) {
-   // TODO: create context here
    openglCtx = std::make_unique<OpenGL_Context>();
+   imguiCtx = std::make_unique<ImGui_Context>();
 }
 void GLWindow::setNativeWindow(void* window) {
    glfwWindow = (GLFWwindow*)window;
@@ -10,28 +10,38 @@ void GLWindow::setNativeWindow(void* window) {
 void* GLWindow::getNativeWindow() { return glfwWindow; }
 bool GLWindow::getIsRunning() { return isRunning; }
 
-void GLWindow::setScene(std::shared_ptr<Scene> scene){
-   this->scene = scene;
-}
+void GLWindow::setScene(std::shared_ptr<Scene> scene) { this->scene = scene; }
 
 bool GLWindow::init(int width, int height, const std::string& title) {
    this->width = width;
    this->height = height;
    this->title = title;
-
-   // TODO: init more member here
    openglCtx->init(this);
+   imguiCtx->init(this);
+
+   float xscale, yscale;
+   glfwGetWindowContentScale(glfwWindow, &xscale, &yscale);
+
+   this->actualWidth = width * xscale;
+   this->actualHeight = height * yscale;
+   scene = std::make_shared<Scene>(actualWidth, actualHeight);
+
    return isRunning;
 }
+
 GLWindow::~GLWindow() {
-   // TODO: call some end function here
    openglCtx->end();
+   imguiCtx->end();
 }
 
 void GLWindow::onResize(int width, int height) {
    this->width = width;
    this->height = height;
+   float xscale, yscale;
+   glfwGetWindowContentScale(glfwWindow, &xscale, &yscale);
 
+   this->actualWidth = width * xscale;
+   this->actualHeight = height * yscale;
    // TODO: call actual resize here
    render();
 }
@@ -48,14 +58,16 @@ void GLWindow::onKey(int key, int scancode, int action, int mods) {
 void GLWindow::onClose() { isRunning = false; }
 
 void GLWindow::render() {
-   // // Clear the view
+   // Clear the view
    openglCtx->preRender();
+   imguiCtx->preRender();
 
+   imGuiManager.render(scene);
    scene->render();
-   
-   // // Render end, swap buffers
+
+   imguiCtx->postRender();
+   // Render end, swap buffers
    openglCtx->postRender();
-   
    handleInput();
 }
 

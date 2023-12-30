@@ -1,9 +1,11 @@
 #pragma once
 #include <memory>
 
+#include "ImGuiContext.h"
+#include "ImGuiManager.h"
 #include "OpenGLContext.h"
-#include "Window.h"
 #include "Scene.h"
+#include "Window.h"
 
 class GLWindow : public IWindow {
   public:
@@ -24,8 +26,15 @@ class GLWindow : public IWindow {
    void onClose() override;
 
   private:
+   // Because of dpi scale, the actual height/width may different from init
+   // height/weight
+   // actual height/width = scale * init height/width
+   int actualHeight, actualWidth;
+
    GLFWwindow* glfwWindow;
    std::unique_ptr<OpenGL_Context> openglCtx;
+   std::unique_ptr<ImGui_Context> imguiCtx;
+   ImGuiManager imGuiManager;
    std::shared_ptr<Scene> scene;
    bool isRunning;
 };

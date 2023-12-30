@@ -32,6 +32,10 @@ bool OpenGL_Context::init(IWindow* window) {
    // Create the window and store this window as window pointer
    // so that we can use it in callback functions
    glfwWindowHint(GLFW_SAMPLES, 4);
+   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+   glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+   
    auto glWindow = glfwCreateWindow(window->width, window->height,
                                     window->title.c_str(), nullptr, nullptr);
    window->setNativeWindow(glWindow);
@@ -47,6 +51,7 @@ bool OpenGL_Context::init(IWindow* window) {
    glfwSetWindowSizeCallback(glWindow, on_window_size_callback);
    glfwSetWindowCloseCallback(glWindow, on_window_close_callback);
    glfwMakeContextCurrent(glWindow);
+
    gladLoadGL();
    glEnable(GL_DEPTH_TEST);
    glEnable(GL_MULTISAMPLE);

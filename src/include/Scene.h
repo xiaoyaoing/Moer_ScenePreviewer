@@ -31,14 +31,17 @@ class Scene {
    DefaultWhiteLight light;
 
   public:
-   Scene(std::string& working_dir);
+   Scene(int width, int height);
    void render();
+   void loadScene(std::string fullScenePath, std::string workingDir);
 
   private:
+   int width, height;  // framebuffer size
    void LoadMeshesFronJson(const Json& sceneJson);
    void LoadSingleMeshFromJson(const Json& entityJson);
    void LoadCameraFromJson(const Json& sceneJson);
    void createVAOsFromMeshes();
+   void clearPreviousScene();
    Matrix4f getTransform(const Json& json);
    std::string workingDir;
 };

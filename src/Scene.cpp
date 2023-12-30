@@ -1,11 +1,16 @@
 #include "Scene.h"
 
-Scene::Scene(std::string& working_dir)
+Scene::Scene(int width, int height)
     : shader("D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\phone.vs",
              "D:\\Desktop\\Graphics\\Moer_ScenePreviewer\\shader\\phone.fs") {
-   workingDir = working_dir;
-   std::string jsonPath = workingDir + "scene.json";
-   std::ifstream file(jsonPath);
+   this->width = width;
+   this->height = height;
+}
+
+void Scene::loadScene(std::string fullScenePath, std::string workingDir) {
+   clearPreviousScene();
+   std::ifstream file(fullScenePath);
+   this->workingDir = workingDir + "\\";
    Json SceneJson;
    if (file.is_open()) {
       file >> SceneJson;
@@ -16,14 +21,16 @@ Scene::Scene(std::string& working_dir)
    createVAOsFromMeshes();
    quadVAO.create_buffers();
    light.position = camera->cameraPosition;
-   framebuffer.create_buffers(1280, 720);
+   framebuffer.create_buffers(width, height);
 }
 
 void Scene::render() {
    shader.use();
    material.update(shader);
    light.update(shader);
-   camera->update(shader);
+   if (camera != nullptr) {
+      camera->update(shader);
+   }
 
    framebuffer.bind();
    for (auto&& VAO : VAOs) {
@@ -152,4 +159,14 @@ void Scene::createVAOsFromMeshes() {
       VAO.create_buffers(mesh);
       VAOs.push_back(VAO);
    }
+}
+
+void Scene::clearPreviousScene() {
+   // FIXME: possible memory leak
+   for (auto&& VAO : VAOs) {
+      VAO.delete_buffers();
+   }
+   VAOs.clear();
+   meshes.clear();
+   camera = nullptr;
 }
