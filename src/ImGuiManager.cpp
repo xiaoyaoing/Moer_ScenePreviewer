@@ -7,6 +7,7 @@ static float mouseSensitivity = 0.0005f;
 static float zoomSensitivity = 0.6f;
 static bool fixLookAtPoint = true;
 static bool lightFollow = true;
+static bool enableMovement = true;
 
 static void HelpMarker(const char* desc) {
    ImGui::TextDisabled("(?)");
@@ -68,11 +69,19 @@ static void showLoadSceneWindow(std::shared_ptr<Scene> scene) {
       }
    }
    ImGui::End();
-
+   ImGuiIO& io = ImGui::GetIO();
+   ImVec2 maxSize;
+   maxSize.x = io.DisplaySize.x * 0.8f;
+   maxSize.y = io.DisplaySize.y * 0.8f;
+   ImVec2 minSize;
+   minSize.x = maxSize.x * 0.4f;
+   minSize.y = maxSize.y * 0.4f;
    if (openLoadDialog) {
+      enableMovement = false;
       ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File",
                                               ".json", fullScenePath);
-      if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+      if (ImGuiFileDialog::Instance()->Display(
+              "ChooseFileDlgKey", ImGuiWindowFlags_None, minSize, maxSize)) {
          if (ImGuiFileDialog::Instance()->IsOk()) {
             fullScenePath = ImGuiFileDialog::Instance()->GetFilePathName();
             workingDir = ImGuiFileDialog::Instance()->GetCurrentPath();
@@ -81,14 +90,17 @@ static void showLoadSceneWindow(std::shared_ptr<Scene> scene) {
          }
 
          ImGuiFileDialog::Instance()->Close();
+         enableMovement = true;
          openLoadDialog = false;
       }
    }
    if (openSaveDialog) {
+      enableMovement = false;
       ImGuiFileDialog::Instance()->OpenDialog(
           "ChooseFileDlgKey", " Choose a File", ".json", fullScenePath, 1,
           nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
-      if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+      if (ImGuiFileDialog::Instance()->Display(
+              "ChooseFileDlgKey", ImGuiWindowFlags_None, minSize, maxSize)) {
          if (ImGuiFileDialog::Instance()->IsOk()) {
             fullScenePath = ImGuiFileDialog::Instance()->GetFilePathName();
             workingDir = ImGuiFileDialog::Instance()->GetCurrentPath();
@@ -97,6 +109,7 @@ static void showLoadSceneWindow(std::shared_ptr<Scene> scene) {
          }
 
          ImGuiFileDialog::Instance()->Close();
+         enableMovement = true;
          openSaveDialog = false;
       }
    }
@@ -132,10 +145,10 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
    }
    if (ImGui::TreeNode("Material Properties")) {
       Material& material = scene->material;
-      ImGui::DragFloat3("Material Ambient", material.ambient.data(), 0.01f, 0.0f,
-                        1.0f);
-      ImGui::DragFloat3("Material Diffuse", material.diffuse.data(), 0.01f, 0.0f,
-                        1.0f);
+      ImGui::DragFloat3("Material Ambient", material.ambient.data(), 0.01f,
+                        0.0f, 1.0f);
+      ImGui::DragFloat3("Material Diffuse", material.diffuse.data(), 0.01f,
+                        0.0f, 1.0f);
       ImGui::DragFloat3("Material Specular", material.specular.data(), 0.01f,
                         0.0f, 1.0f);
       ImGui::InputFloat("Material Shininess", &material.shininess);
@@ -144,7 +157,7 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
 
    if (ImGui::TreeNode("Movement & Control Properties")) {
       ImGui::SeparatorText("Control Guide");
-      ImGui::Text("Use W,A,S,D to move camera.");
+      ImGui::Text("Use W,A,S,D,Q,E to move camera.");
       ImGui::Text(
           "Press the middle mouse button and move the mouse to look around.");
       ImGui::Text(
@@ -171,8 +184,10 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
 }
 
 static void handleControl(std::shared_ptr<Scene> scene) {
-   handleKeyboardControl(scene);
-   handleMouseControl(scene);
+   if (enableMovement) {
+      handleKeyboardControl(scene);
+      handleMouseControl(scene);
+   }
 }
 
 static void handleMouseControl(std::shared_ptr<Scene> scene) {

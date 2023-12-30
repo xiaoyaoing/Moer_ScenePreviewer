@@ -11,23 +11,22 @@ $ xmake
 
 # Run
 ```
-$ xmake r Moer_ScenePreviewer "Scene Folder Path"
+$ xmake r
 ```
-For example:
-```
-$ xmake r Moer_ScenePreviewer "..\\..\\..\\..\\scenes\\teapot\\"
-```
+
 # Branches
 The main branch uses OpenGL for rendering.
 
 If you want to check the CPU rendering version of the code, please switch to the cpu-rendering branch.
 
 # TODO List
-- [ ] ImGui for creating GUI
-- [ ] Camera movement
+- [x] ImGui for creating GUI
+- [x] Camera movement
+- [x] Load and save scene
+- [ ] Fix mouse movement
 
 # Gallery
-[![teapot.md.png](https://z4a.net/images/2023/12/08/teapot.md.png)](https://z4a.net/image/jyQLYk)
+[![teapot_ui.png](https://z4a.net/images/2023/12/31/teapot_ui.png)](https://z4a.net/image/junNwE)
 [![green-bathroom.md.png](https://z4a.net/images/2023/12/08/green-bathroom.md.png)](https://z4a.net/image/jyQJdN)
 [![classroom.md.png](https://z4a.net/images/2023/12/08/classroom.md.png)](https://z4a.net/image/jyQ1CL)
 [![testball.md.png](https://z4a.net/images/2023/12/08/testball.md.png)](https://z4a.net/image/jyQBew)
