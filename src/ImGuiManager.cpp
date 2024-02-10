@@ -37,11 +37,13 @@ static void showLoadSceneWindow(std::shared_ptr<Scene> scene) {
    static bool openSaveDialog = false;
    static std::string fullScenePath = ".";
    static std::string workingDir = ".";
-
+   ImGuiIO& io = ImGui::GetIO();
    if (ImGui::Button("Load Scene")) {
       openLoadDialog = true;
    }
    if (scene->camera != nullptr) {
+      ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                  1000.0f / io.Framerate, io.Framerate);
       ImGui::SeparatorText("Scene Actions");
       if (ImGui::Button("Save Scene")) {
          openSaveDialog = true;
@@ -69,7 +71,6 @@ static void showLoadSceneWindow(std::shared_ptr<Scene> scene) {
       }
    }
    ImGui::End();
-   ImGuiIO& io = ImGui::GetIO();
    ImVec2 maxSize;
    maxSize.x = io.DisplaySize.x * 0.8f;
    maxSize.y = io.DisplaySize.y * 0.8f;
