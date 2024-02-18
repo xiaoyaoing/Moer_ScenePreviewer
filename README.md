@@ -9,10 +9,8 @@ Moer_ScenePreviewer uses [CMake](https://cmake.org/) for building. You need to h
 # Branches
 The main branch uses OpenGL for rendering and CMake for building.
 
-If you want to check the CPU rendering version of the code, please switch to the cpu-rendering branch. The cpu-rendering branch use xmake for building.
+If you want to check the CPU rendering version of the code, please switch to the cpu-rendering branch. The cpu-rendering branch uses xmake for building.
 
 # Gallery
-[![teapot_ui.png](https://z4a.net/images/2023/12/31/teapot_ui.png)](https://z4a.net/image/junNwE)
-[![green-bathroom.md.png](https://z4a.net/images/2023/12/08/green-bathroom.md.png)](https://z4a.net/image/jyQJdN)
-[![classroom.md.png](https://z4a.net/images/2023/12/08/classroom.md.png)](https://z4a.net/image/jyQ1CL)
-[![testball.md.png](https://z4a.net/images/2023/12/08/testball.md.png)](https://z4a.net/image/jyQBew)
+![v1_0_teapot.png](https://z4a.net/images/2024/02/18/v1_0_teapot.png)
+![v1_0_classromm.png](https://z4a.net/images/2024/02/18/v1_0_classromm.png)
