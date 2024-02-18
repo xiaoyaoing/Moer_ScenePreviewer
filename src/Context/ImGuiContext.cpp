@@ -1,5 +1,8 @@
 #include "ImGuiContext.h"
 
+#include "FiraCode.h"
+#include "IconsFontAwesome6.h"
+
 bool ImGui_Context::init(IWindow *window) {
    GLFWwindow *glfwWindow =
        static_cast<GLFWwindow *>(window->getNativeWindow());
@@ -13,7 +16,7 @@ bool ImGui_Context::init(IWindow *window) {
        ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
    io.ConfigFlags |=
        ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
-
+   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
    float xscale, yscale;
    glfwGetWindowContentScale(glfwWindow, &xscale, &yscale);
 
@@ -27,8 +30,18 @@ bool ImGui_Context::init(IWindow *window) {
    ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
    ImGui_ImplOpenGL3_Init(glsl_version);
 
+   ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
+   ImWchar broder_ranges[] = {0x2500, 0x257F, 0};
+   static ImVector<ImWchar> ranges;
+   ImFontGlyphRangesBuilder builder;
+   builder.AddRanges(icons_ranges);
+   builder.AddRanges(broder_ranges);
+   builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+   builder.BuildRanges(&ranges);
+
    ImFont *font = io.Fonts->AddFontFromMemoryCompressedBase85TTF(
-       FiraCode_compressed_data_base85, static_cast<int>(xscale * 16));
+       FiraCodeNerd_compressed_data_base85, static_cast<int>(xscale * 18), NULL,
+       ranges.Data);
    return true;
 };
 

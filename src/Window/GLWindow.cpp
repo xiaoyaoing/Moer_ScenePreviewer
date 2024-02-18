@@ -18,7 +18,6 @@ bool GLWindow::init(int width, int height, const std::string& title) {
    this->title = title;
    openglCtx->init(this);
    imguiCtx->init(this);
-
    float xscale, yscale;
    glfwGetWindowContentScale(glfwWindow, &xscale, &yscale);
 
@@ -62,8 +61,8 @@ void GLWindow::render() {
    openglCtx->preRender();
    imguiCtx->preRender();
 
-   imGuiManager.render(scene);
-   scene->render();
+   GLuint renderResultTextureId = scene->render();
+   imGuiManager.render(scene, renderResultTextureId);
 
    imguiCtx->postRender();
    // Render end, swap buffers

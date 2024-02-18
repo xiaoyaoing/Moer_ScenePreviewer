@@ -1,6 +1,4 @@
 #pragma once
-#include <iostream>
-
 #include "RenderContext.h"
 
 class OpenGL_Context : public Render::RenderContext {

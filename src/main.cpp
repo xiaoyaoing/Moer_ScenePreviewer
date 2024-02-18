@@ -1,8 +1,4 @@
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
-
 #include "GLWindow.h"
-#include "Scene.h"
 
 int main(int argc, char** argv) {
    std::unique_ptr<GLWindow> window = std::make_unique<GLWindow>();

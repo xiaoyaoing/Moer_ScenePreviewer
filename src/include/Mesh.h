@@ -3,7 +3,6 @@
 #include <tiny_obj_loader.h>
 
 #include <Eigen/Dense>
-#include <iostream>
 #include <string>
 #include <vector>
 

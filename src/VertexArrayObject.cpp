@@ -5,7 +5,6 @@ void VertexArrayObject::create_buffers(std::shared_ptr<Mesh> mesh) {
    glGenVertexArrays(1, &VAO);
 
    glBindVertexArray(VAO);
-   assert(sizeof(Vector3f) == 3 * sizeof(float));
    // Create and bind VBO - Vertex positions
    glGenBuffers(1, &VBO);
    glBindBuffer(GL_ARRAY_BUFFER, VBO);

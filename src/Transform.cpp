@@ -1,5 +1,7 @@
 #include "Transform.h"
 
+#include <cmath>
+
 namespace Transform {
 AngleValue::AngleValue() {
    degrees = 0.0;

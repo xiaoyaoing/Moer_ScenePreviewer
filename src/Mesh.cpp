@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include <iostream>
+
 void components_to_vec3f(const std::vector<tinyobj::real_t>& components,
                          std::vector<Vector3f>& dst);
 void components_to_vec2f(const std::vector<tinyobj::real_t>& components,
@@ -22,25 +24,17 @@ Mesh::Mesh(const std::string& file_path) {
       std::cerr << warn << std::endl;
    }
    if (!success) {
+      std::cerr << "TinyObj load mesh failed." << std::endl;
       exit(1);
    }
-#ifdef DEBUG
-   printf("# of vertices  = %d\n", (int)(attrib.vertices.size()) / 3);
-   printf("# of normals   = %d\n", (int)(attrib.normals.size()) / 3);
-   printf("# of texcoords = %d\n", (int)(attrib.texcoords.size()) / 2);
-   printf("# of materials = %d\n", (int)objmaterials.size());
-   printf("# of shapes    = %d\n", (int)shapes.size());
-#endif
-
    components_to_vec3f(attrib.vertices, this->vertices);
    components_to_vec3f(attrib.normals, this->normals);
    components_to_vec2f(attrib.texcoords, this->uvs);
 
    for (auto shape = shapes.begin(); shape != shapes.end(); shape++) {
-      // createOpenGLData(*shape);
+      createOpenGLData(*shape);
       load_triangle_faces(*shape, this->faces);
    }
-   createOpenGLDataFromFaces();
    std::cout << "Load model: " << file_path << " sucessfully." << std::endl;
 }
 
@@ -103,8 +97,8 @@ void Mesh::createOpenGLData(const tinyobj::shape_t& shape) {
    size_t indices_nr = indices.size() / 3;
    for (size_t i = 0; i < indices_nr; i++) {
       for (size_t j = 0; j < 3; j++) {
-         int vertex_index = indices[3 * i + j].vertex_index - 1;
-         int normal_index = indices[3 * i + j].normal_index - 1;
+         int vertex_index = indices[3 * i + j].vertex_index;
+         int normal_index = indices[3 * i + j].normal_index;
          openglVertices.push_back(vertices[vertex_index]);
          openglNormals.push_back(normals[normal_index]);
          openglIndex.push_back(3 * i + j);

@@ -2,10 +2,8 @@
 #include <glad/glad.h>
 
 #include <Eigen/Dense>
-#include <fstream>
-#include <iostream>
-#include <sstream>
 #include <string>
+
 
 using Vector4f = Eigen::Vector4f;
 using Vector3f = Eigen::Vector3f;

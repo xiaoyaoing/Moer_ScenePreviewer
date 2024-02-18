@@ -1,5 +1,7 @@
 #include "FrameBuffer.h"
 
+#include <iostream>
+
 void FrameBuffer::create_buffers(int width, int height) {
    this->width = width;
    this->height = height;

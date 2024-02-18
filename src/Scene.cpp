@@ -1,5 +1,8 @@
 #include "Scene.h"
 
+#include <fstream>
+#include <iostream>
+
 Scene::Scene(int width, int height) {
    this->width = width;
    this->height = height;
@@ -8,6 +11,7 @@ Scene::Scene(int width, int height) {
 
 void Scene::loadScene(std::string fullScenePath, std::string workingDir) {
    clearPreviousScene();
+   auto startTime = std::chrono::high_resolution_clock::now();
    std::ifstream file(fullScenePath);
    this->workingDir = workingDir + "\\";
    if (file.is_open()) {
@@ -20,6 +24,9 @@ void Scene::loadScene(std::string fullScenePath, std::string workingDir) {
    quadVAO.create_buffers();
    light.position = camera->cameraPosition;
    framebuffer.create_buffers(width, height);
+   auto endTime = std::chrono::high_resolution_clock::now();
+   loadDurationMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+       endTime - startTime);
 }
 
 void Scene::saveScene(std::string fullScenePath) {
@@ -37,7 +44,11 @@ void Scene::saveScene(std::string fullScenePath) {
    }
 }
 
-void Scene::render() {
+int Scene::getMeshCount() { return meshes.size(); }
+int Scene::getTotalIndices() { return totalIndices; }
+int Scene::getTotalVertices() { return totalVertices; }
+
+GLuint Scene::render() {
    shader.use();
    material.update(shader);
    light.update(shader);
@@ -56,7 +67,7 @@ void Scene::render() {
    glDisable(GL_DEPTH_TEST);
    glEnable(GL_MULTISAMPLE);
    glBindTexture(GL_TEXTURE_2D, framebuffer.get_texture());
-   quadVAO.draw();
+   return framebuffer.get_texture();
 }
 
 void Scene::LoadMeshesFronJson(const Json& SceneJson) {
@@ -71,19 +82,13 @@ void Scene::LoadSingleMeshFromJson(const Json& entityJson) {
       std::shared_ptr<Mesh> mesh = nullptr;
       if (type == "mesh") {
          std::string file_path = entityJson.at("file");
-#ifdef DEBUG
-         std::cout << "Load mesh at " << file_path << std::endl;
-#endif
          mesh = std::make_shared<Mesh>(workingDir + file_path);
+         assert(mesh->openglIndex.size() % 3 == 0);
+         totalIndices += mesh->openglIndex.size();
+         totalVertices += mesh->vertices_nr();
       } else if (type == "quad") {
-#ifdef DEBUG
-         std::cout << "Load quad." << std::endl;
-#endif
          mesh = std::make_shared<Quad>();
       } else if (type == "cube") {
-#ifdef DEBUG
-         std::cout << "Load cube." << std::endl;
-#endif
          mesh = std::make_shared<Cube>();
       } else {
          throw std::invalid_argument("Unknown value for key 'type': " + type);
@@ -106,34 +111,20 @@ void Scene::LoadSingleMeshFromJson(const Json& entityJson) {
 }
 
 Matrix4f Scene::getTransform(const Json& transformJson) {
-#ifdef DEBUG
-   std::cout << "Getting Transform for this entity..." << std::endl;
-#endif
    Matrix4f ret = Matrix4f::Identity();
    try {
       if (transformJson.contains("translate")) {
          auto translate = transformJson.at("translate");
          ret *=
              Transform::getTranslate(translate[0], translate[1], translate[2]);
-#ifdef DEBUG
-         std::cout << "Translate: " << translate[0] << ' ' << translate[1]
-                   << ' ' << translate[2] << std::endl;
-#endif
       }
       if (transformJson.contains("scale")) {
          auto scale = transformJson.at("scale");
          if (scale.is_array()) {
             ret *= Transform::getScale(scale[0], scale[1], scale[2]);
-#ifdef DEBUG
-            std::cout << "Scale: " << scale[0] << ' ' << scale[1] << ' '
-                      << scale[2] << std::endl;
-#endif
          } else {
             ret *= Transform::getScale(scale.get<float>(), scale.get<float>(),
                                        scale.get<float>());
-#ifdef DEBUG
-            std::cout << "Scale: " << scale.get<float>() << std::endl;
-#endif
          }
       }
       if (transformJson.contains("rotation")) {
@@ -142,10 +133,6 @@ Matrix4f Scene::getTransform(const Json& transformJson) {
          ret *= Transform::getRotateEuler(
              Transform::AngleDegreeValue(x), Transform::AngleDegreeValue(y),
              Transform::AngleDegreeValue(z), Transform::EulerType::EULER_YZX);
-#ifdef DEBUG
-         std::cout << "Roatation: " << rotation[0] << ' ' << rotation[1] << ' '
-                   << rotation[2] << std::endl;
-#endif
       }
       return ret;
    } catch (const std::out_of_range& e) {
@@ -153,17 +140,12 @@ Matrix4f Scene::getTransform(const Json& transformJson) {
           << "Missing essential property when loading entity's transform:  "
           << e.what() << std::endl;
    }
+   return ret;
 }
 
 void Scene::LoadCameraFromJson(const Json& sceneJson) {
-#ifdef DEBUG
-   std::cout << "Loading Camera..." << std::endl;
-#endif
    Json cameraJson = sceneJson.at("camera");
    camera = std::make_shared<PinHoleCamera>(cameraJson);
-#ifdef DEBUG
-   std::cout << "Load camera successfully." << std::endl;
-#endif
 }
 
 void Scene::createVAOsFromMeshes() {
@@ -183,4 +165,5 @@ void Scene::clearPreviousScene() {
    meshes.clear();
    json.clear();
    camera = nullptr;
+   totalIndices = totalVertices = 0;
 }

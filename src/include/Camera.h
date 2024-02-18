@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include <nlohmann/json.hpp>
 
 #include "Shader.h"
@@ -18,6 +17,7 @@ class PinHoleCamera {
    PinHoleCamera(const Json& cameraJson);
    // Shader is a light-weight class, so just pass value
    void update(Shader shader);
+   void adjustYawAndPitch(float deltaYaw, float deltaPitch);
    void resetToInitValue();
    void resetPosition();
    void resetLookAtPoint();

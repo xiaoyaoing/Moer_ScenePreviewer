@@ -41,15 +41,6 @@ PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
    } else {
       resolution = Vector2i(512, 512);
    }
-
-#ifdef DEBUG
-   std::cout << " Camera Info: " << std::endl;
-   std::cout << "    lookFrom: " << lookFrom.transpose() << std::endl;
-   std::cout << "    lookAt: " << lookAt.transpose() << std::endl;
-   std::cout << "    up: " << up.transpose() << std::endl;
-   std::cout << "    xfov: " << xFov << std::endl;
-   std::cout << "resolution: " << resolution.transpose() << std::endl;
-#endif
    setActualValue(lookFrom, lookAt, up, xFov, resolution);
 }
 
@@ -79,6 +70,22 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
    ini_cameraPosition = cameraPosition;
    ini_up = up;
    ini_xFov = xFov;
+}
+
+void PinHoleCamera::adjustYawAndPitch(float deltaYaw, float deltaPitch) {
+   Eigen::AngleAxisf yawRotation(deltaYaw, up);
+   vecLookAt = yawRotation * vecLookAt;
+   right = vecLookAt.cross(up);
+
+   Eigen::AngleAxisf pitchRotation(deltaPitch, right);
+   vecLookAt = pitchRotation * vecLookAt;
+   up = right.cross(vecLookAt);
+
+   up.normalize();
+   right.normalize();
+   vecLookAt.normalize();
+
+   pointLookAt = cameraPosition + vecLookAt;
 }
 
 void PinHoleCamera::reCalculateAllMatrices() {

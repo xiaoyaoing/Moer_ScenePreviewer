@@ -1,0 +1,2 @@
+#define VERSION_MAJOR @Moer_ScenePreviewer_VERSION_MAJOR@
+#define VERSION_MINOR @Moer_ScenePreviewer_VERSION_MINOR@

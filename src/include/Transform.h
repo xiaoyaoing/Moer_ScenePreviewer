@@ -2,8 +2,6 @@
 #define __TRANSFORM_H__
 
 #include <Eigen/Dense>
-#include <cmath>
-#include <iostream>
 
 using Matrix4f = Eigen::Matrix4f;
 using Vector3f = Eigen::Vector3f;
@@ -45,7 +43,7 @@ Matrix4f getTranslate(float x, float y, float z);
 Matrix4f getRotateEuler(const AngleValue& x, const AngleValue& y,
                         const AngleValue& z, EulerType type);
 Matrix4f getView(const Vector3f& lookFrom, const Vector3f& lookAt_vec,
-                   const Vector3f& up);
+                 const Vector3f& up);
 Matrix4f getPerspective(const AngleValue& fov, float aspect, float near,
                         float far);
 Matrix4f getOpenGLPerspective(const AngleValue& xfov, float aspect, float near,

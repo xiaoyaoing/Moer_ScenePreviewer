@@ -1,7 +1,6 @@
 #ifndef __SCENE_H__
 #define __SCENE_H__
-#include <fstream>
-#include <iostream>
+#include <chrono>
 #include <memory>
 #include <nlohmann/json.hpp>
 
@@ -29,14 +28,18 @@ class Scene {
    ScreenShader screenShader;
    DefaultWhiteMaterial material;
    DefaultWhiteLight light;
+   std::chrono::duration<long long, std::milli> loadDurationMs;
 
   public:
    Scene(int width, int height);
-   void render();
+   GLuint render();
    void loadScene(std::string fullScenePath, std::string workingDir);
    void saveScene(std::string fullScenePath);
-  private:
+   int getMeshCount();
+   int getTotalVertices();
+   int getTotalIndices();
    int width, height;  // framebuffer size
+  private:
    Json json;
    void LoadMeshesFronJson(const Json& sceneJson);
    void LoadSingleMeshFromJson(const Json& entityJson);
@@ -45,6 +48,7 @@ class Scene {
    void clearPreviousScene();
    Matrix4f getTransform(const Json& json);
    std::string workingDir;
+   int totalVertices, totalIndices;
 };
 
 #endif
