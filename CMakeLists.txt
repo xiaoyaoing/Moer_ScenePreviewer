@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 17)
 project(Moer_ScenePreviewer VERSION 1.0 LANGUAGES CXX)
+
+if (MSVC)
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+endif (MSVC)
+
 configure_file(src/include/CMakeConfig.h.in src/include/CMakeConfig.h)
 set(TARGET_NAME Moer_ScenePreviewer)
 set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 0)
