@@ -8,6 +8,8 @@ file(GLOB_RECURSE ALL_INCLUDE CONFIGURE_DEPENDS "src/*.h")
 file(GLOB_RECURSE ALL_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ALL_INCLUDE} ${ALL_SOURCES})
+add_executable(${TARGET_NAME} ${ALL_INCLUDE} ${ALL_SOURCES})
+target_include_directories(${TARGET_NAME} PRIVATE ${PROJECT_BINARY_DIR}/src/include)
 
 include(FetchContent)
 
@@ -18,10 +20,6 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(ImGuiFileDialog)
-
-add_executable(${TARGET_NAME} ${ALL_INCLUDE} ${ALL_SOURCES})
-
-target_include_directories(${TARGET_NAME} PRIVATE ${PROJECT_BINARY_DIR}/src/include)
 
 # cmake_policy(SET CMP0135 NEW)
 find_package(glfw3 CONFIG REQUIRED)
