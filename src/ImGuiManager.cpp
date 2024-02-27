@@ -28,7 +28,7 @@ static float mouseSensitivity = 0.0005f;
 static float zoomSensitivity = 0.6f;
 static bool fixLookAtPoint = true;
 static bool lightFollow = true;
-static bool enableMovement = true;
+static bool enableMovement = false;
 
 static void HelpMarker(const char* desc) {
    ImGui::TextDisabled("(?)");
