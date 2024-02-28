@@ -7,6 +7,8 @@ if (MSVC)
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 endif (MSVC)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 configure_file(src/include/CMakeConfig.h.in src/include/CMakeConfig.h)
 set(TARGET_NAME Moer_ScenePreviewer)
 set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 0)
@@ -26,6 +28,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(ImGuiFileDialog)
+set_target_properties(ImGuiFileDialog PROPERTIES FOLDER ext)
 
 # cmake_policy(SET CMP0135 NEW)
 find_package(glfw3 CONFIG REQUIRED)
