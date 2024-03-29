@@ -1,5 +1,7 @@
 #include "OpenGLContext.h"
 
+#include "OpenGLHeader.h"
+
 static void on_key_callback(GLFWwindow* glfwWindow, int key, int scancode,
                             int action, int mods) {
    IWindow* window =
@@ -35,7 +37,7 @@ bool OpenGL_Context::init(IWindow* window) {
    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-   
+
    auto glWindow = glfwCreateWindow(window->width, window->height,
                                     window->title.c_str(), nullptr, nullptr);
    window->setNativeWindow(glWindow);

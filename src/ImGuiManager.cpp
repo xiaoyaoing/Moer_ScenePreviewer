@@ -1,4 +1,5 @@
 #include "ImGuiManager.h"
+
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
@@ -8,12 +9,16 @@
 
 #include "CMakeConfig.h"
 #include "IconsFontAwesome6.h"
+#include "MoerHandler.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #define ICON_FA_FILE_IMPORT_ "\xee\x89\xbd"  // U+e27d
 #define ICON_FA_CLOSE "\xee\xa9\xb6"         // U+ea76
 #define ICON_FA_GITHUB "\xEF\x82\x9B"        // U+f09b
+#define ICON_FA_MOER "\U0000f522"            // U+f0b14
 
 static const char* uiName_Scene = ICON_FA_CUBES " Scene";
 static const char* uiName_Open = ICON_FA_FOLDER " Open";
@@ -22,6 +27,7 @@ static const char* uiName_Quit = ICON_FA_CLOSE " Quit";
 static const char* uiName_Camera = ICON_FA_CAMERA " Camera";
 static const char* uiName_Light = ICON_FA_LIGHTBULB " Light";
 static const char* uiName_Material = ICON_FA_CUBE " Material";
+static const char* uiName_Moer = ICON_FA_MOER " Moer";
 
 static float cameraMovementSpd = 0.05f;
 static float mouseSensitivity = 0.0005f;
@@ -44,7 +50,7 @@ enum class FileDialogAction { CLOSE, OPEN, SAVE, SAVE_AS };
 // ---------------------Main Menu Bar-----------------------------
 static void showMainMenuBar(std::shared_ptr<Scene> scene);
 static void showFileMenu(std::shared_ptr<Scene> scene);
-static void showFileDialog(std::shared_ptr<Scene> scene);
+static void showFileDialogForSceneSL(std::shared_ptr<Scene> scene);
 // --------------------Windows------------------------------------
 static void showResultWindow(std::shared_ptr<Scene> scene,
                              GLuint renderResultTextureId);
@@ -52,7 +58,8 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene);
 static void showLightPropertiesWindow(std::shared_ptr<Scene> scene);
 static void showMaterialPropertiesWindow(std::shared_ptr<Scene> scene);
 static void showCameraPropertiesWindow(std::shared_ptr<Scene> scene);
-
+static void showMoerWindow();
+static void showMoerResultWindow(std::shared_ptr<Scene> scene);
 static void showHelpWindow();
 static void showAboutWindw();
 static FileDialogAction fileDialogCurrentAction;
@@ -60,30 +67,35 @@ static bool openHelpWindow = false;
 static bool openAboutWindow = false;
 
 static std::string fullScenePath = ".";
-
 static std::string workingDir = ".";
+
 static void handleControl(std::shared_ptr<Scene> scene);
 static void handleKeyboardControl(std::shared_ptr<Scene> scene);
 static void handleMouseControl(std::shared_ptr<Scene> scene);
 
 static ImGuiID mainDockSpace, leftDockSpace, rightDockSpace;
+static MoerHandler moerHandler;
 
 static void setupDefaultLayout() {
    ImGui::DockBuilderSplitNode(mainDockSpace, ImGuiDir_Left, 0.4,
                                &leftDockSpace, &rightDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Scene, leftDockSpace);
+   ImGui::DockBuilderDockWindow(uiName_Moer, leftDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Camera, leftDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Light, leftDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Material, leftDockSpace);
-   ImGui::DockBuilderDockWindow("Result", rightDockSpace);
+   ImGui::DockBuilderDockWindow("Preview Result", rightDockSpace);
+   ImGui::DockBuilderDockWindow("Moer Render Result", rightDockSpace);
 }
+
+void ImGuiManager::init() {}
 
 void ImGuiManager::render(std::shared_ptr<Scene> scene,
                           GLuint renderResultTextureId) {
    static bool first_time = true;
    mainDockSpace = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-   bool isSettingLoaded = ImGui::GetCurrentContext()->SettingsIniData.empty();
-   if (first_time && isSettingLoaded) {
+   bool isSettingEmpty = ImGui::GetCurrentContext()->SettingsIniData.empty();
+   if (first_time && isSettingEmpty) {
       setupDefaultLayout();
       first_time = false;
    }
@@ -93,15 +105,18 @@ void ImGuiManager::render(std::shared_ptr<Scene> scene,
    showLightPropertiesWindow(scene);
    showMaterialPropertiesWindow(scene);
    showResultWindow(scene, renderResultTextureId);
+   showMoerWindow();
+   showMoerResultWindow(scene);
    showHelpWindow();
    showAboutWindw();
    if (fileDialogCurrentAction != FileDialogAction::CLOSE) {
-      showFileDialog(scene);
+      showFileDialogForSceneSL(scene);
    }
    handleControl(scene);
 }
 
-static void showFileDialog(std::shared_ptr<Scene> scene) {
+static void showFileDialogForSceneSL(std::shared_ptr<Scene> scene) {
+   // TODO: ugly implementation for handling fileDialog
    ImGuiIO& io = ImGui::GetIO();
    ImVec2 maxSize, minSize;
    maxSize.y = io.DisplaySize.y * 0.8f;
@@ -126,7 +141,6 @@ static void showFileDialog(std::shared_ptr<Scene> scene) {
           "ChooseFileDlgKey", " Choose a File", ".json", newFullScenePath, 1,
           nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
    }
-
    enableMovement = false;
 
    if (ImGuiFileDialog::Instance()->Display(
@@ -317,7 +331,7 @@ static void showFileMenu(std::shared_ptr<Scene> scene) {
 
 static void showResultWindow(std::shared_ptr<Scene> scene,
                              GLuint renderResultTextureId) {
-   ImGui::Begin("Result");
+   ImGui::Begin("Preview Result");
    ImVec2 availableSize = ImGui::GetContentRegionAvail();
    float aspectRatio = static_cast<float>(scene->width) / scene->height;
    float minWidth = std::min(availableSize.x, availableSize.y * aspectRatio);
@@ -342,6 +356,68 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
    ImGui::Text("%d vertices, %d indices (%d trangles)",
                scene->getTotalVertices(), scene->getTotalIndices(),
                scene->getTotalIndices() / 3);
+   ImGui::End();
+}
+
+static void showMoerWindow() {
+   ImGui::Begin(uiName_Moer);
+   static bool openFileDialogForMoer = false;
+   ImGui::SeparatorText("Moer Path");
+   if (ImGui::Button("Open")) {
+      openFileDialogForMoer = true;
+   }
+   std::string moerPath = moerHandler.getMoerPath();
+   ImGui::Text("Path: %s", moerPath.c_str());
+
+   if (openFileDialogForMoer) {
+      ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File",
+                                              ".exe", moerPath);
+      enableMovement = false;
+
+      if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey",
+                                               ImGuiWindowFlags_None)) {
+         if (ImGuiFileDialog::Instance()->IsOk()) {
+            moerPath = ImGuiFileDialog::Instance()->GetFilePathName();
+            moerHandler.setMoerPathAndWrite(moerPath);
+            // workingDir = ImGuiFileDialog::Instance()->GetCurrentPath();
+         }
+         ImGuiFileDialog::Instance()->Close();
+         enableMovement = true;
+         openFileDialogForMoer = false;
+      }
+   }
+   ImGui::SeparatorText("Render Current Scene");
+   if (ImGui::Button("Start")) {
+      int result = moerHandler.executeMoer(moerPath, workingDir);
+      if (result != 0) {
+         ImGui::TextColored(ImVec4(1.0, 0, 0, 0), "Error when launching Moer.");
+      }
+      // moerHandler.setRenderResultPicture(moerHandler.getLatestHdrFile("."));
+   }
+   if (moerHandler.isRenderCompleted() || moerHandler.isRendering()) {
+      ImGui::ProgressBar(
+          static_cast<float>(moerHandler.getRenderProgress()) / 100.f,
+          ImVec2(0.0f, 0.0f));
+   }
+   ImGui::End();
+}
+
+static void showMoerResultWindow(std::shared_ptr<Scene> scene) {
+   ImGui::Begin("Moer Render Result");
+   if (moerHandler.isRenderCompleted()) {
+      moerHandler.setRenderResultPicture();
+   }
+   auto resultTexture = moerHandler.getRenderResultTextureID();
+   if (resultTexture.has_value()) {
+      auto resultTextureID = resultTexture.value();
+      ImVec2 availableSize = ImGui::GetContentRegionAvail();
+      float aspectRatio = static_cast<float>(scene->width) / scene->height;
+      float minWidth = std::min(availableSize.x, availableSize.y * aspectRatio);
+      float minHeight = minWidth / aspectRatio;
+      ImGui::Image(reinterpret_cast<void*>(resultTextureID),
+                   ImVec2{minWidth, minHeight}, ImVec2{0, 1}, ImVec2{1, 0});
+   }
+
    ImGui::End();
 }
 
