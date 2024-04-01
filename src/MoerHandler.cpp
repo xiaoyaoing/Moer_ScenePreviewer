@@ -31,8 +31,8 @@ std::string MoerHandler::getMoerPath() {
 
 bool MoerHandler::isRendering() { return moerState == MOER_STATE::RENDERING; }
 
-bool MoerHandler::isRenderCompleted() {
-   return moerState == MOER_STATE::RENDER_DONE;
+bool MoerHandler::isRenderJustCompleted() {
+   return moerState == MOER_STATE::RENDER_JUST_COMPLETED;
 }
 
 int MoerHandler::getRenderProgress() { return renderProgress.load(); }
@@ -51,6 +51,10 @@ void MoerHandler::setRenderResultPicture(
    stbi_set_flip_vertically_on_load(true);
    unsigned char* data =
        stbi_load(imagePath.c_str(), &width, &height, &componentNr, 0);
+   if (data == nullptr) {
+      std::cerr << "Set Render Result Picture Failed." << std::endl;
+      return;
+   }
    glGenTextures(1, &imageTexture);
 
    glBindTexture(GL_TEXTURE_2D, imageTexture);
@@ -63,12 +67,15 @@ void MoerHandler::setRenderResultPicture(
    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0,
                 internalFormat, GL_UNSIGNED_BYTE, data);
    stbi_image_free(data);
-   if (moerState == MOER_STATE::RENDER_DONE) {
+   if (moerState == MOER_STATE::RENDER_JUST_COMPLETED) {
       moerState = MOER_STATE::NONE;
    }
 }
 
 void MoerHandler::setRenderResultPicture() {
+   auto latestHDRFilePath = getLatestHdrFile(".");
+   std::cout << "Set Moer render result picture to: " << latestHDRFilePath
+             << std::endl;
    this->setRenderResultPicture(getLatestHdrFile("."));
 }
 
@@ -98,7 +105,7 @@ void MoerHandler::handleMoerStdOutput(struct subprocess_s* moerProcess) {
    // Just set moerState and return
    // Can not call setRenderResultPicture(), because this is not the main thread
    // Its OpenGL context is different from main thread
-   moerState = MOER_STATE::RENDER_DONE;
+   moerState = MOER_STATE::RENDER_JUST_COMPLETED;
 }
 
 int MoerHandler::executeMoer(const std::filesystem::path& moerPath,
@@ -110,7 +117,6 @@ int MoerHandler::executeMoer(const std::filesystem::path& moerPath,
    setMoerPathAndWrite(moerPathStr);
    const char* command_line[] = {moerPathStr.c_str(), scenePathStr.c_str(),
                                  NULL};
-   static struct subprocess_s moerProcess;
    int result = subprocess_create(
        command_line,
        subprocess_option_inherit_environment | subprocess_option_enable_async,
@@ -124,6 +130,13 @@ int MoerHandler::executeMoer(const std::filesystem::path& moerPath,
    moerOutputThread.detach();
    moerState = MOER_STATE::RENDERING;
    return 0;
+}
+
+void MoerHandler::killMoer() {
+   if (subprocess_alive(&moerProcess)) {
+      subprocess_terminate(&moerProcess);
+      subprocess_destroy(&moerProcess);
+   }
 }
 
 std::filesystem::path MoerHandler::getLatestHdrFile(
@@ -144,8 +157,6 @@ std::filesystem::path MoerHandler::getLatestHdrFile(
       }
 
       if (!latest_hdr_file.empty()) {
-         std::cout << "Latest modified .hdr file: " << latest_hdr_file
-                   << std::endl;
          return latest_hdr_file;
       } else {
          std::cerr << "No hdr file found. Has Moer rendering completed?"
