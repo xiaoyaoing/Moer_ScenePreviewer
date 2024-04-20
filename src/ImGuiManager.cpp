@@ -420,8 +420,13 @@ static void showMoerWindow() {
    ImGui::Text("Path: %s", moerPath.c_str());
 
    if (openFileDialogForMoer) {
+#ifdef _WIN32
       moerFileDialog.OpenDialog("moerDialog", "Choose Moer executable", ".exe",
                                 moerPath);
+#else
+      moerFileDialog.OpenDialog("moerDialog", "Choose Moer executable", "",
+                                moerPath);
+#endif
       enableMovement = false;
 
       if (moerFileDialog.Display("moerDialog", ImGuiWindowFlags_None)) {
