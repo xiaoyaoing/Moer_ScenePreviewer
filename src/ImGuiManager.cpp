@@ -3,8 +3,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include <ImGuiFileDialog.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
 #include "CMakeConfig.h"
 #include "IconsFontAwesome6.h"
@@ -81,7 +81,7 @@ static void setupDefaultLayout() {
 void ImGuiManager::render(std::shared_ptr<Scene> scene,
                           GLuint renderResultTextureId) {
    static bool first_time = true;
-   mainDockSpace = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+   mainDockSpace = ImGui::DockSpaceOverViewport(0,ImGui::GetMainViewport());
    bool isSettingLoaded = ImGui::GetCurrentContext()->SettingsIniData.empty();
    if (first_time && isSettingLoaded) {
       setupDefaultLayout();

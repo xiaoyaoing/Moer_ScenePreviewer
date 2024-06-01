@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Scene.h"
+#include <GL/gl.h>
 
 class ImGuiManager {
   public:

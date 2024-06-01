@@ -30,27 +30,35 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ImGuiFileDialog)
 set_target_properties(ImGuiFileDialog PROPERTIES FOLDER ext)
 
+
 # cmake_policy(SET CMP0135 NEW)
-find_package(glfw3 CONFIG REQUIRED)
+add_subdirectory(ext/glfw)
 target_link_libraries(${TARGET_NAME} PRIVATE glfw)
 
-find_package(glad REQUIRED)
-target_link_libraries(${TARGET_NAME} PRIVATE glad::glad)
+#add_subdirectory(ext/glad)
+#target_link_libraries(${TARGET_NAME} PRIVATE glad::glad)
 
-find_package(imgui REQUIRED)
-target_link_libraries(${TARGET_NAME} PRIVATE imgui::imgui)
-find_path(IMGUI_INCLUDE_DIR NAMES imgui.h)
+include(${CMAKE_CURRENT_SOURCE_DIR}/ext/imgui.cmake)
+target_link_libraries(${TARGET_NAME} PRIVATE imgui)
+set(IMGUI_INCLUDE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/ext/imgui)
 
+target_link_libraries(${TARGET_NAME} PRIVATE glad)
+
+message(STATUS "IMGUI_INCLUDE_DIR: ${IMGUI_INCLUDE_DIR}")
 target_include_directories(ImGuiFileDialog PRIVATE ${IMGUI_INCLUDE_DIR})
 
-find_package(nlohmann_json REQUIRED)
-target_link_libraries(${TARGET_NAME} PRIVATE nlohmann_json::nlohmann_json)
+#find_package(nlohmann_json REQUIRED)
+#target_link_libraries(${TARGET_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
-find_package(Eigen3 REQUIRED)
-target_link_libraries(${TARGET_NAME} PRIVATE Eigen3::Eigen)
+#find_package(Eigen3 REQUIRED)
+#target_link_libraries(${TARGET_NAME} PRIVATE Eigen3::Eigen)
 
-find_package(tinyobjloader REQUIRED)
-target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader::tinyobjloader)
+#find_package(tinyobjloader REQUIRED)
+#target_link_libraries(${TARGET_NAME} PRIVATE tinyobjloader::tinyobjloader)
+
+target_link_libraries(Moer_ScenePreviewer PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(Moer_ScenePreviewer PRIVATE Eigen3::Eigen)
+target_link_libraries(Moer_ScenePreviewer PRIVATE tinyobjloader)
 
 target_include_directories(${TARGET_NAME} PRIVATE ${ImGuiFileDialog_SOURCE_DIR})
 target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib)
