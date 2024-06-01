@@ -54,7 +54,10 @@ void GLWindow::onKey(int key, int scancode, int action, int mods) {
    }
 }
 
-void GLWindow::onClose() { isRunning = false; }
+void GLWindow::onClose() {
+   isRunning = false;
+   imGuiManager.killMoer();
+}
 
 void GLWindow::render() {
    // Clear the view

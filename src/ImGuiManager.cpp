@@ -1,4 +1,7 @@
 #include "ImGuiManager.h"
+
+#include <iostream>
+
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
@@ -8,12 +11,16 @@
 
 #include "CMakeConfig.h"
 #include "IconsFontAwesome6.h"
+#include "MoerHandler.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #define ICON_FA_FILE_IMPORT_ "\xee\x89\xbd"  // U+e27d
 #define ICON_FA_CLOSE "\xee\xa9\xb6"         // U+ea76
 #define ICON_FA_GITHUB "\xEF\x82\x9B"        // U+f09b
+#define ICON_FA_MOER "\U0000f522"            // U+f0b14
 
 static const char* uiName_Scene = ICON_FA_CUBES " Scene";
 static const char* uiName_Open = ICON_FA_FOLDER " Open";
@@ -22,6 +29,7 @@ static const char* uiName_Quit = ICON_FA_CLOSE " Quit";
 static const char* uiName_Camera = ICON_FA_CAMERA " Camera";
 static const char* uiName_Light = ICON_FA_LIGHTBULB " Light";
 static const char* uiName_Material = ICON_FA_CUBE " Material";
+static const char* uiName_Moer = ICON_FA_MOER " Moer";
 
 static float cameraMovementSpd = 0.05f;
 static float mouseSensitivity = 0.0005f;
@@ -42,44 +50,54 @@ static void HelpMarker(const char* desc) {
 
 enum class FileDialogAction { CLOSE, OPEN, SAVE, SAVE_AS };
 // ---------------------Main Menu Bar-----------------------------
-static void showMainMenuBar(std::shared_ptr<Scene> scene);
-static void showFileMenu(std::shared_ptr<Scene> scene);
-static void showFileDialog(std::shared_ptr<Scene> scene);
+static void showMainMenuBar(std::shared_ptr<Scene> scene,
+                            GLuint renderResultTextureID);
+static void showFileMenu(std::shared_ptr<Scene> scene,
+                         GLuint renderResultTextureID);
+static void showFileDialogForScene(std::shared_ptr<Scene> scene);
 // --------------------Windows------------------------------------
 static void showResultWindow(std::shared_ptr<Scene> scene,
-                             GLuint renderResultTextureId);
-static void showScenePropertiesWindow(std::shared_ptr<Scene> scene);
+                             GLuint renderResultTextureID);
 static void showLightPropertiesWindow(std::shared_ptr<Scene> scene);
+static void showScenePropertiesWindow(std::shared_ptr<Scene> scene);
 static void showMaterialPropertiesWindow(std::shared_ptr<Scene> scene);
 static void showCameraPropertiesWindow(std::shared_ptr<Scene> scene);
-
+static void showMoerWindow();
+static void showMoerResultWindow(std::shared_ptr<Scene> scene);
 static void showHelpWindow();
 static void showAboutWindw();
-static FileDialogAction fileDialogCurrentAction;
+static FileDialogAction sceneFileDialogAction;
 static bool openHelpWindow = false;
 static bool openAboutWindow = false;
 
 static std::string fullScenePath = ".";
-
 static std::string workingDir = ".";
+
 static void handleControl(std::shared_ptr<Scene> scene);
 static void handleKeyboardControl(std::shared_ptr<Scene> scene);
 static void handleMouseControl(std::shared_ptr<Scene> scene);
 
 static ImGuiID mainDockSpace, leftDockSpace, rightDockSpace;
+static MoerHandler moerHandler;
 
 static void setupDefaultLayout() {
    ImGui::DockBuilderSplitNode(mainDockSpace, ImGuiDir_Left, 0.4,
                                &leftDockSpace, &rightDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Scene, leftDockSpace);
+   ImGui::DockBuilderDockWindow(uiName_Moer, leftDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Camera, leftDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Light, leftDockSpace);
    ImGui::DockBuilderDockWindow(uiName_Material, leftDockSpace);
-   ImGui::DockBuilderDockWindow("Result", rightDockSpace);
+   ImGui::DockBuilderDockWindow("Preview Result", rightDockSpace);
+   ImGui::DockBuilderDockWindow("Moer Render Result", rightDockSpace);
 }
 
+void ImGuiManager::init() {}
+
+void ImGuiManager::killMoer() { moerHandler.killMoer(); }
+
 void ImGuiManager::render(std::shared_ptr<Scene> scene,
-                          GLuint renderResultTextureId) {
+                          GLuint renderResultTextureID) {
    static bool first_time = true;
    mainDockSpace = ImGui::DockSpaceOverViewport(0,ImGui::GetMainViewport());
    bool isSettingLoaded = ImGui::GetCurrentContext()->SettingsIniData.empty();
@@ -87,21 +105,24 @@ void ImGuiManager::render(std::shared_ptr<Scene> scene,
       setupDefaultLayout();
       first_time = false;
    }
-   showMainMenuBar(scene);
+   showMainMenuBar(scene, renderResultTextureID);
    showScenePropertiesWindow(scene);
+   showMoerWindow();
    showCameraPropertiesWindow(scene);
    showLightPropertiesWindow(scene);
    showMaterialPropertiesWindow(scene);
-   showResultWindow(scene, renderResultTextureId);
+   showMoerResultWindow(scene);
+   showResultWindow(scene, renderResultTextureID);
    showHelpWindow();
    showAboutWindw();
-   if (fileDialogCurrentAction != FileDialogAction::CLOSE) {
-      showFileDialog(scene);
+   if (sceneFileDialogAction != FileDialogAction::CLOSE) {
+      showFileDialogForScene(scene);
    }
    handleControl(scene);
 }
 
-static void showFileDialog(std::shared_ptr<Scene> scene) {
+static void showFileDialogForScene(std::shared_ptr<Scene> scene) {
+   // TODO: ugly implementation for handling fileDialog
    ImGuiIO& io = ImGui::GetIO();
    ImVec2 maxSize, minSize;
    maxSize.y = io.DisplaySize.y * 0.8f;
@@ -109,24 +130,23 @@ static void showFileDialog(std::shared_ptr<Scene> scene) {
    minSize.x = maxSize.x * 0.4f;
    minSize.y = maxSize.y * 0.4f;
 
-   if (fileDialogCurrentAction == FileDialogAction::OPEN) {
-      ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File",
-                                              ".json", fullScenePath);
-   } else if (fileDialogCurrentAction == FileDialogAction::SAVE) {
+   if (sceneFileDialogAction == FileDialogAction::OPEN) {
       ImGuiFileDialog::Instance()->OpenDialog(
-          "ChooseFileDlgKey", " Choose a File", ".json", fullScenePath, 1,
+          "ChooseFileDlgKey", "Choose a scene json", ".json", fullScenePath);
+   } else if (sceneFileDialogAction == FileDialogAction::SAVE) {
+      ImGuiFileDialog::Instance()->OpenDialog(
+          "ChooseFileDlgKey", "Choose a scene json", ".json", fullScenePath, 1,
           nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
-   } else if (fileDialogCurrentAction == FileDialogAction::SAVE_AS) {
+   } else if (sceneFileDialogAction == FileDialogAction::SAVE_AS) {
       std::string newFullScenePath = fullScenePath;
       size_t pos = newFullScenePath.rfind('.');
       if (pos != std::string::npos) {
          newFullScenePath.insert(pos, "_new");
       }
       ImGuiFileDialog::Instance()->OpenDialog(
-          "ChooseFileDlgKey", " Choose a File", ".json", newFullScenePath, 1,
-          nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
+          "ChooseFileDlgKey", "Choose a scene json", ".json", newFullScenePath,
+          1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
    }
-
    enableMovement = false;
 
    if (ImGuiFileDialog::Instance()->Display(
@@ -134,25 +154,26 @@ static void showFileDialog(std::shared_ptr<Scene> scene) {
       if (ImGuiFileDialog::Instance()->IsOk()) {
          fullScenePath = ImGuiFileDialog::Instance()->GetFilePathName();
          workingDir = ImGuiFileDialog::Instance()->GetCurrentPath();
-         if (fileDialogCurrentAction == FileDialogAction::SAVE ||
-             fileDialogCurrentAction == FileDialogAction::SAVE_AS) {
+         if (sceneFileDialogAction == FileDialogAction::SAVE ||
+             sceneFileDialogAction == FileDialogAction::SAVE_AS) {
             scene->saveScene(fullScenePath);
-         } else if (fileDialogCurrentAction == FileDialogAction::OPEN) {
+         } else if (sceneFileDialogAction == FileDialogAction::OPEN) {
             scene->loadScene(fullScenePath, workingDir);
          } else {
             assert(0);
          }
       }
       ImGuiFileDialog::Instance()->Close();
-      fileDialogCurrentAction = FileDialogAction::CLOSE;
+      sceneFileDialogAction = FileDialogAction::CLOSE;
       enableMovement = true;
    }
 }
 
-static void showMainMenuBar(std::shared_ptr<Scene> scene) {
+static void showMainMenuBar(std::shared_ptr<Scene> scene,
+                            GLuint renderResultTextureID) {
    if (ImGui::BeginMainMenuBar()) {
       if (ImGui::BeginMenu("File")) {
-         showFileMenu(scene);
+         showFileMenu(scene, renderResultTextureID);
          ImGui::EndMenu();
       }
       if (ImGui::MenuItem("Help")) {
@@ -293,22 +314,52 @@ static void showMaterialPropertiesWindow(std::shared_ptr<Scene> scene) {
    ImGui::End();
 }
 
-static void showFileMenu(std::shared_ptr<Scene> scene) {
+static void savePreviewResult(GLuint renderResultTextureID, int width,
+                              int height) {
+   // Bind the texture
+   glBindTexture(GL_TEXTURE_2D, renderResultTextureID);
+
+   // Allocate a buffer to hold the pixel data
+   unsigned char* buffer = new unsigned char[width * height * 3];  // 3 for RGB
+
+   // Read the pixel data into the buffer
+   glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+
+   // Generate filename for image: [workingDir]_preview.png
+   // for example: ".../teapot/" -> ".../teapot/teapot_preview.png"
+   std::filesystem::path dirPath(workingDir);
+   std::string dirName = dirPath.filename().string();
+   std::string filename = dirName + "_preview.png";
+   dirPath /= filename;
+   std::string fullPath = dirPath.string();
+   // Write the buffer to a PNG file
+   stbi_flip_vertically_on_write(true);
+   stbi_write_png(fullPath.c_str(), width, height, 3, buffer, width * 3);
+   std::cout << "Preview result saved to: " << fullPath << std::endl;
+   delete[] buffer;
+}
+
+static void showFileMenu(std::shared_ptr<Scene> scene,
+                         GLuint renderResultTextureID) {
    if (ImGui::MenuItem(uiName_Open)) {
-      if (fileDialogCurrentAction == FileDialogAction::CLOSE) {
-         fileDialogCurrentAction = FileDialogAction::OPEN;
+      if (sceneFileDialogAction == FileDialogAction::CLOSE) {
+         sceneFileDialogAction = FileDialogAction::OPEN;
       }
    }
    bool hasActiveScene = scene->camera != nullptr;
    if (ImGui::MenuItem(uiName_Save, NULL, (bool*)NULL, hasActiveScene)) {
-      if (fileDialogCurrentAction == FileDialogAction::CLOSE) {
-         fileDialogCurrentAction = FileDialogAction::SAVE;
+      if (sceneFileDialogAction == FileDialogAction::CLOSE) {
+         sceneFileDialogAction = FileDialogAction::SAVE;
       }
    }
    if (ImGui::MenuItem("  Save As...", NULL, (bool*)NULL, hasActiveScene)) {
-      if (fileDialogCurrentAction == FileDialogAction::CLOSE) {
-         fileDialogCurrentAction = FileDialogAction::SAVE_AS;
+      if (sceneFileDialogAction == FileDialogAction::CLOSE) {
+         sceneFileDialogAction = FileDialogAction::SAVE_AS;
       }
+   }
+   if (ImGui::MenuItem("  Save preivew result", NULL, (bool*)NULL,
+                       hasActiveScene)) {
+      savePreviewResult(renderResultTextureID, scene->width, scene->height);
    }
    if (ImGui::MenuItem(uiName_Quit)) {
       exit(0);
@@ -316,13 +367,13 @@ static void showFileMenu(std::shared_ptr<Scene> scene) {
 }
 
 static void showResultWindow(std::shared_ptr<Scene> scene,
-                             GLuint renderResultTextureId) {
-   ImGui::Begin("Result");
+                             GLuint renderResultTextureID) {
+   ImGui::Begin("Preview Result");
    ImVec2 availableSize = ImGui::GetContentRegionAvail();
    float aspectRatio = static_cast<float>(scene->width) / scene->height;
    float minWidth = std::min(availableSize.x, availableSize.y * aspectRatio);
    float minHeight = minWidth / aspectRatio;
-   ImGui::Image(reinterpret_cast<void*>(renderResultTextureId),
+   ImGui::Image(reinterpret_cast<void*>(renderResultTextureID),
                 ImVec2{minWidth, minHeight}, ImVec2{0, 1}, ImVec2{1, 0});
    ImGui::End();
 }
@@ -342,6 +393,99 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
    ImGui::Text("%d vertices, %d indices (%d trangles)",
                scene->getTotalVertices(), scene->getTotalIndices(),
                scene->getTotalIndices() / 3);
+   ImGui::End();
+}
+
+int calJsonFileCount(const std::string& path) {
+   int jsonFileCount = 0;
+
+   for (const auto& entry : std::filesystem::directory_iterator(path)) {
+      if (entry.path().extension() == ".json") {
+         jsonFileCount++;
+      }
+   }
+
+   return jsonFileCount;
+}
+
+static void showMoerWindow() {
+   static ImGuiFileDialog moerFileDialog;
+   ImGui::Begin(uiName_Moer);
+   static bool openFileDialogForMoer = false;
+   ImGui::SeparatorText("Moer Path");
+   if (ImGui::Button("Open")) {
+      openFileDialogForMoer = true;
+   }
+   std::string moerPath = moerHandler.getMoerPath();
+   ImGui::Text("Path: %s", moerPath.c_str());
+
+   if (openFileDialogForMoer) {
+#ifdef _WIN32
+      moerFileDialog.OpenDialog("moerDialog", "Choose Moer executable", ".exe",
+                                moerPath);
+#else
+      moerFileDialog.OpenDialog("moerDialog", "Choose Moer executable", "",
+                                moerPath);
+#endif
+      enableMovement = false;
+
+      if (moerFileDialog.Display("moerDialog", ImGuiWindowFlags_None)) {
+         if (moerFileDialog.IsOk()) {
+            moerPath = moerFileDialog.GetFilePathName();
+            moerHandler.setMoerPathAndWrite(moerPath);
+            // workingDir = moerFileDialog.GetCurrentPath();
+         }
+         moerFileDialog.Close();
+         enableMovement = true;
+         openFileDialogForMoer = false;
+      }
+   }
+   ImGui::SeparatorText("Render Current Scene");
+   static int jsonCount, launchResult = 0;
+   if (ImGui::Button("Start")) {
+      jsonCount = calJsonFileCount(workingDir);
+      launchResult = moerHandler.executeMoer(moerPath, workingDir);
+      // moerHandler.setRenderResultPicture(moerHandler.getLatestHdrFile("."));
+   }
+   ImGui::SameLine();
+   HelpMarker(
+       "After the progress bar disappears, please check the save path of the "
+       "render result in the terminal output.");
+   if (jsonCount > 1) {
+      ImGui::TextColored(
+          ImVec4(1.f, 1.f, 0.f, 1.f),
+          "Warning: Multiple json files are founded under current directory. "
+          "Only 'scene.json' will be rendered by Moer.");
+   }
+   if (launchResult != 0) {
+      ImGui::TextColored(ImVec4(1.0, 0, 0, 1.f), "Error when launching Moer.");
+   }
+   if (moerHandler.isRenderJustCompleted() || moerHandler.isRendering()) {
+      ImGui::ProgressBar(
+          static_cast<float>(moerHandler.getRenderProgress()) / 100.f,
+          ImVec2(0.0f, 0.0f));
+   }
+   if (moerHandler.isRenderJustCompleted()) {
+   }
+   ImGui::End();
+}
+
+static void showMoerResultWindow(std::shared_ptr<Scene> scene) {
+   ImGui::Begin("Moer Render Result");
+   if (moerHandler.isRenderJustCompleted()) {
+      moerHandler.setRenderResultPicture();
+   }
+   auto resultTexture = moerHandler.getRenderResultTextureID();
+   if (resultTexture.has_value()) {
+      auto resultTextureID = resultTexture.value();
+      ImVec2 availableSize = ImGui::GetContentRegionAvail();
+      float aspectRatio = static_cast<float>(scene->width) / scene->height;
+      float minWidth = std::min(availableSize.x, availableSize.y * aspectRatio);
+      float minHeight = minWidth / aspectRatio;
+      ImGui::Image(reinterpret_cast<void*>(resultTextureID),
+                   ImVec2{minWidth, minHeight}, ImVec2{0, 1}, ImVec2{1, 0});
+   }
+
    ImGui::End();
 }
 
